@@ -1,4 +1,5 @@
 pub mod constants;
+pub mod error;
 pub mod instructions;
 pub mod state;
 
@@ -20,5 +21,13 @@ pub mod crumb_jar {
 
     pub fn claim_crumbs(ctx: Context<ClaimCrumbs>) -> Result<()> {
         crate::instructions::claim_crumbs::handle_claim_crumbs(ctx)
+    }
+
+    pub fn commit_raid(ctx: Context<CommitRaid>, commitment: [u8; 32]) -> Result<()> {
+        crate::instructions::commit_raid::handle_commit_raid(ctx, commitment)
+    }
+
+    pub fn reveal_raid(ctx: Context<RevealRaid>, secret: [u8; 32]) -> Result<()> {
+        crate::instructions::reveal_raid::handle_reveal_raid(ctx, secret)
     }
 }

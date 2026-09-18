@@ -3,6 +3,7 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useCookieJar, useLiveCrumbs } from "@/hooks/useCookieJar";
 import { COOKIESCAN_TX_URL } from "@/lib/solana/config";
+import RaidPanel from "./RaidPanel";
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Waiting for your signature…",
@@ -13,8 +14,16 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function JarPanel() {
   const { publicKey } = useWallet();
-  const { jar, loading, status, signature, error, mintJar, claimCrumbs } =
-    useCookieJar();
+  const {
+    jar,
+    loading,
+    status,
+    signature,
+    error,
+    mintJar,
+    claimCrumbs,
+    refresh,
+  } = useCookieJar();
   const { banked, pending, total } = useLiveCrumbs(jar);
 
   if (!publicKey) {
@@ -28,7 +37,8 @@ export default function JarPanel() {
   const busy = status === "pending" || status === "confirming";
 
   return (
-    <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]">
+    <div className="flex w-full max-w-md flex-col items-center gap-6">
+    <div className="flex w-full flex-col items-center gap-4 rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]">
       {loading && !jar ? (
         <p className="text-zinc-600 dark:text-zinc-400">Checking for your jar…</p>
       ) : jar ? (
@@ -116,6 +126,9 @@ export default function JarPanel() {
           View on CookieScan
         </a>
       )}
+    </div>
+
+    {jar && <RaidPanel onJarChanged={refresh} />}
     </div>
   );
 }

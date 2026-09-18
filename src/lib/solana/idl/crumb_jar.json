@@ -55,6 +55,119 @@
       "args": []
     },
     {
+      "name": "commit_raid",
+      "discriminator": [
+        89,
+        24,
+        15,
+        248,
+        223,
+        62,
+        42,
+        1
+      ],
+      "accounts": [
+        {
+          "name": "attacker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "attacker_jar",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "attacker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "target_jar",
+          "docs": [
+            "Loaded so a raid cannot be committed against a jar that does not exist."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "target_jar.owner",
+                "account": "CookieJar"
+              }
+            ]
+          }
+        },
+        {
+          "name": "raid",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  105,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "attacker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "commitment",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "initialize_jar",
       "discriminator": [
         228,
@@ -105,6 +218,120 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "reveal_raid",
+      "discriminator": [
+        128,
+        249,
+        76,
+        49,
+        112,
+        1,
+        166,
+        171
+      ],
+      "accounts": [
+        {
+          "name": "attacker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "attacker_jar",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "attacker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "target_jar",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "target_jar.owner",
+                "account": "CookieJar"
+              }
+            ]
+          }
+        },
+        {
+          "name": "raid",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  105,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "attacker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "slot_hashes",
+          "docs": [
+            "bytes, because the sysvar is far too large to deserialize on-chain."
+          ],
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "secret",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
     }
   ],
   "accounts": [
@@ -120,6 +347,56 @@
         199,
         204
       ]
+    },
+    {
+      "name": "Raid",
+      "discriminator": [
+        247,
+        50,
+        237,
+        152,
+        225,
+        69,
+        138,
+        211
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "SelfRaid",
+      "msg": "You cannot raid your own jar"
+    },
+    {
+      "code": 6001,
+      "name": "RaidOnCooldown",
+      "msg": "Your raid is still on cooldown"
+    },
+    {
+      "code": 6002,
+      "name": "InsufficientCrumbs",
+      "msg": "Not enough crumbs to stake this raid"
+    },
+    {
+      "code": 6003,
+      "name": "WrongTarget",
+      "msg": "This target does not match the jar you committed to raid"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidReveal",
+      "msg": "The revealed secret does not match your commitment"
+    },
+    {
+      "code": 6005,
+      "name": "RevealTooSoon",
+      "msg": "Reveal must land in a later slot than the commit"
+    },
+    {
+      "code": 6006,
+      "name": "SlotHashUnavailable",
+      "msg": "The slot hashes sysvar could not be read"
     }
   ],
   "types": [
@@ -145,8 +422,53 @@
             "type": "i64"
           },
           {
+            "name": "last_raid_ts",
+            "type": "i64"
+          },
+          {
             "name": "defense_level",
             "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Raid",
+      "docs": [
+        "An in-flight raid. Created at commit, closed at reveal, and seeded on the",
+        "attacker so a player can only have one raid open at a time."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "attacker",
+            "type": "pubkey"
+          },
+          {
+            "name": "target",
+            "type": "pubkey"
+          },
+          {
+            "name": "commitment",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "commit_slot",
+            "type": "u64"
+          },
+          {
+            "name": "staked",
+            "type": "u64"
           },
           {
             "name": "bump",
@@ -163,9 +485,52 @@
       "value": "1"
     },
     {
+      "name": "BASE_RAID_SUCCESS_PERCENT",
+      "type": "u64",
+      "value": "70"
+    },
+    {
+      "name": "DEFENSE_REDUCTION_PER_LEVEL",
+      "type": "u64",
+      "value": "5"
+    },
+    {
       "name": "JAR_SEED",
       "type": "bytes",
       "value": "[99, 111, 111, 107, 105, 101, 95, 106, 97, 114]"
+    },
+    {
+      "name": "RAID_COOLDOWN_SECONDS",
+      "type": "i64",
+      "value": "300"
+    },
+    {
+      "name": "RAID_SEED",
+      "type": "bytes",
+      "value": "[114, 97, 105, 100]"
+    },
+    {
+      "name": "RAID_STAKE",
+      "docs": [
+        "Staked by the attacker at commit time and forfeited on a loss. Taking it",
+        "up front means walking away from an unfavourable reveal costs the same as",
+        "losing, so there is no reason to abandon a raid."
+      ],
+      "type": "u64",
+      "value": "10"
+    },
+    {
+      "name": "RAID_STEAL_PERCENT",
+      "type": "u64",
+      "value": "20"
+    },
+    {
+      "name": "SLOT_HASHES_ID",
+      "docs": [
+        "`SysvarS1otHashes111111111111111111111111111`"
+      ],
+      "type": "pubkey",
+      "value": "SysvarS1otHashes111111111111111111111111111"
     }
   ]
 }

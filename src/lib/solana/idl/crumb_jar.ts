@@ -61,6 +61,119 @@ export type CrumbJar = {
       "args": []
     },
     {
+      "name": "commitRaid",
+      "discriminator": [
+        89,
+        24,
+        15,
+        248,
+        223,
+        62,
+        42,
+        1
+      ],
+      "accounts": [
+        {
+          "name": "attacker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "attackerJar",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "attacker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "targetJar",
+          "docs": [
+            "Loaded so a raid cannot be committed against a jar that does not exist."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "targetJar.owner",
+                "account": "cookieJar"
+              }
+            ]
+          }
+        },
+        {
+          "name": "raid",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  105,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "attacker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "commitment",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "initializeJar",
       "discriminator": [
         228,
@@ -111,6 +224,120 @@ export type CrumbJar = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "revealRaid",
+      "discriminator": [
+        128,
+        249,
+        76,
+        49,
+        112,
+        1,
+        166,
+        171
+      ],
+      "accounts": [
+        {
+          "name": "attacker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "attackerJar",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "attacker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "targetJar",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "targetJar.owner",
+                "account": "cookieJar"
+              }
+            ]
+          }
+        },
+        {
+          "name": "raid",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  105,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "attacker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "slotHashes",
+          "docs": [
+            "bytes, because the sysvar is far too large to deserialize on-chain."
+          ],
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "secret",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
     }
   ],
   "accounts": [
@@ -126,6 +353,56 @@ export type CrumbJar = {
         199,
         204
       ]
+    },
+    {
+      "name": "raid",
+      "discriminator": [
+        247,
+        50,
+        237,
+        152,
+        225,
+        69,
+        138,
+        211
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "selfRaid",
+      "msg": "You cannot raid your own jar"
+    },
+    {
+      "code": 6001,
+      "name": "raidOnCooldown",
+      "msg": "Your raid is still on cooldown"
+    },
+    {
+      "code": 6002,
+      "name": "insufficientCrumbs",
+      "msg": "Not enough crumbs to stake this raid"
+    },
+    {
+      "code": 6003,
+      "name": "wrongTarget",
+      "msg": "This target does not match the jar you committed to raid"
+    },
+    {
+      "code": 6004,
+      "name": "invalidReveal",
+      "msg": "The revealed secret does not match your commitment"
+    },
+    {
+      "code": 6005,
+      "name": "revealTooSoon",
+      "msg": "Reveal must land in a later slot than the commit"
+    },
+    {
+      "code": 6006,
+      "name": "slotHashUnavailable",
+      "msg": "The slot hashes sysvar could not be read"
     }
   ],
   "types": [
@@ -151,8 +428,53 @@ export type CrumbJar = {
             "type": "i64"
           },
           {
+            "name": "lastRaidTs",
+            "type": "i64"
+          },
+          {
             "name": "defenseLevel",
             "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "raid",
+      "docs": [
+        "An in-flight raid. Created at commit, closed at reveal, and seeded on the",
+        "attacker so a player can only have one raid open at a time."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "attacker",
+            "type": "pubkey"
+          },
+          {
+            "name": "target",
+            "type": "pubkey"
+          },
+          {
+            "name": "commitment",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "commitSlot",
+            "type": "u64"
+          },
+          {
+            "name": "staked",
+            "type": "u64"
           },
           {
             "name": "bump",
@@ -169,9 +491,52 @@ export type CrumbJar = {
       "value": "1"
     },
     {
+      "name": "baseRaidSuccessPercent",
+      "type": "u64",
+      "value": "70"
+    },
+    {
+      "name": "defenseReductionPerLevel",
+      "type": "u64",
+      "value": "5"
+    },
+    {
       "name": "jarSeed",
       "type": "bytes",
       "value": "[99, 111, 111, 107, 105, 101, 95, 106, 97, 114]"
+    },
+    {
+      "name": "raidCooldownSeconds",
+      "type": "i64",
+      "value": "300"
+    },
+    {
+      "name": "raidSeed",
+      "type": "bytes",
+      "value": "[114, 97, 105, 100]"
+    },
+    {
+      "name": "raidStake",
+      "docs": [
+        "Staked by the attacker at commit time and forfeited on a loss. Taking it",
+        "up front means walking away from an unfavourable reveal costs the same as",
+        "losing, so there is no reason to abandon a raid."
+      ],
+      "type": "u64",
+      "value": "10"
+    },
+    {
+      "name": "raidStealPercent",
+      "type": "u64",
+      "value": "20"
+    },
+    {
+      "name": "slotHashesId",
+      "docs": [
+        "`SysvarS1otHashes111111111111111111111111111`"
+      ],
+      "type": "pubkey",
+      "value": "SysvarS1otHashes111111111111111111111111111"
     }
   ]
 };
