@@ -2,14 +2,6 @@
 
 import { useState } from "react";
 import { useRaid } from "@/hooks/useRaid";
-import { COOKIESCAN_TX_URL } from "@/lib/solana/config";
-
-const STATUS_LABELS: Record<string, string> = {
-  pending: "Waiting for your signature…",
-  confirming: "Confirming on Cookie Chain…",
-  confirmed: "Confirmed!",
-  failed: "Transaction failed",
-};
 
 export default function RaidPanel({
   onJarChanged,
@@ -17,16 +9,8 @@ export default function RaidPanel({
   onJarChanged?: () => Promise<void>;
 }) {
   const [target, setTarget] = useState("");
-  const {
-    raid,
-    canReveal,
-    outcome,
-    status,
-    signature,
-    error,
-    commitRaid,
-    revealRaid,
-  } = useRaid(onJarChanged);
+  const { raid, canReveal, outcome, status, error, commitRaid, revealRaid } =
+    useRaid(onJarChanged);
 
   const busy = status === "pending" || status === "confirming";
 
@@ -84,33 +68,10 @@ export default function RaidPanel({
         <p className="text-center text-sm font-medium">{outcome}</p>
       )}
 
-      {status !== "idle" && (
-        <p
-          className={
-            status === "failed"
-              ? "text-sm text-red-600 dark:text-red-400"
-              : "text-sm text-zinc-600 dark:text-zinc-400"
-          }
-        >
-          {STATUS_LABELS[status]}
-        </p>
-      )}
-
       {error && (
         <p className="text-center text-sm text-red-600 dark:text-red-400">
           {error}
         </p>
-      )}
-
-      {signature && (
-        <a
-          href={`${COOKIESCAN_TX_URL}/${signature}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm underline underline-offset-4"
-        >
-          View on CookieScan
-        </a>
       )}
     </div>
   );

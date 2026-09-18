@@ -29,7 +29,7 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
   const program = useCrumbJarProgram();
-  const { status, signature, error, run } = useTransactionStatus();
+  const { status, run } = useTransactionStatus();
 
   const [raid, setRaid] = useState<RaidState | null>(null);
   const [currentSlot, setCurrentSlot] = useState<number | null>(null);
@@ -113,6 +113,7 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
       const commitment = await commitmentFor(secret, publicKey);
 
       await run(
+        "Committing your raid",
         () =>
           program.methods
             .commitRaid(commitment)
@@ -144,6 +145,7 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
     }
 
     await run(
+      "Revealing your raid",
       () =>
         program.methods
           .revealRaid(Array.from(secret))
@@ -176,8 +178,7 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
     canReveal,
     outcome,
     status,
-    signature,
-    error: error ?? fetchError,
+    error: fetchError,
     commitRaid,
     revealRaid,
   };

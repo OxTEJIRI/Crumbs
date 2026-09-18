@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useTransactionToasts } from "@/components/tx/TransactionToasts";
 
 export type TxStatus = "idle" | "pending" | "confirming" | "confirmed" | "failed";
 
@@ -43,48 +44,52 @@ export function describeError(err: unknown): string {
 }
 
 /**
- * Drives one transaction at a time through signature, confirmation and the
- * failure states the UI reports, so each panel can own its own progress.
+ * Drives one transaction through signature and confirmation, reporting every
+ * step as a toast. Callers keep the returned status only to disable buttons
+ * while their own transaction is in flight.
  */
 export function useTransactionStatus() {
   const { connection } = useConnection();
   const { sendTransaction } = useWallet();
+  const toasts = useTransactionToasts();
 
   const [status, setStatus] = useState<TxStatus>("idle");
-  const [signature, setSignature] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const run = useCallback(
     async (
+      label: string,
       buildTransaction: () => Promise<Transaction>,
       onConfirmed?: (signature: string) => Promise<void>
     ) => {
-      setError(null);
-      setSignature(null);
+      const toastId = toasts.push(label);
       setStatus("pending");
 
       try {
         const transaction = await buildTransaction();
 
-        const sig = await sendTransaction(transaction, connection);
-        setSignature(sig);
+        const signature = await sendTransaction(transaction, connection);
         setStatus("confirming");
+        toasts.update(toastId, { status: "confirming", signature });
 
         const latestBlockhash = await connection.getLatestBlockhash();
         await connection.confirmTransaction(
-          { signature: sig, ...latestBlockhash },
+          { signature, ...latestBlockhash },
           "confirmed"
         );
 
         setStatus("confirmed");
-        await onConfirmed?.(sig);
+        toasts.update(toastId, { status: "confirmed", signature });
+        await onConfirmed?.(signature);
       } catch (err) {
-        setError(describeError(err));
         setStatus("failed");
+        toasts.update(toastId, {
+          status: "failed",
+          error: describeError(err),
+        });
       }
     },
-    [sendTransaction, connection]
+    [sendTransaction, connection, toasts]
   );
 
-  return { status, signature, error, run };
+  return { status, run };
 }

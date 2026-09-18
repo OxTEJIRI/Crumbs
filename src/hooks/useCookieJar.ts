@@ -22,7 +22,7 @@ export interface CookieJarState {
 export function useCookieJar() {
   const { publicKey } = useWallet();
   const program = useCrumbJarProgram();
-  const { status, signature, error, run } = useTransactionStatus();
+  const { status, run } = useTransactionStatus();
 
   const [jar, setJar] = useState<CookieJarState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,6 +67,7 @@ export function useCookieJar() {
     if (!publicKey) return;
 
     await run(
+      "Minting your Cookie Jar",
       () =>
         program.methods
           .initializeJar()
@@ -80,6 +81,7 @@ export function useCookieJar() {
     if (!publicKey) return;
 
     await run(
+      "Claiming crumbs",
       () =>
         program.methods.claimCrumbs().accounts({ owner: publicKey }).transaction(),
       refresh
@@ -90,8 +92,7 @@ export function useCookieJar() {
     jar,
     loading,
     status,
-    signature,
-    error: error ?? fetchError,
+    error: fetchError,
     mintJar,
     claimCrumbs,
     refresh,
