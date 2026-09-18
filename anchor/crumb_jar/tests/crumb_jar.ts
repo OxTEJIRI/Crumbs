@@ -266,6 +266,39 @@ describe("crumb_jar", () => {
       );
     });
 
+    it("Lists every jar so the leaderboard can rank them", async () => {
+      const all = await program.account.cookieJar.all();
+
+      const owners = all.map((entry) => entry.account.owner.toString());
+      for (const expected of [owner, victim.publicKey]) {
+        if (!owners.includes(expected.toString())) {
+          throw new Error(`Expected ${expected} among ${owners.join(", ")}`);
+        }
+      }
+
+      // The leaderboard ranks on settled wealth, not the stored balance, so a
+      // player who merely claimed recently does not outrank a richer one.
+      const now = Math.floor(Date.now() / 1000);
+      const ranked = all
+        .map((entry) => ({
+          owner: entry.account.owner.toString(),
+          crumbs:
+            entry.account.crumbBalance.toNumber() +
+            Math.max(0, now - entry.account.lastClaimedTs.toNumber()) *
+              entry.account.productionRate.toNumber(),
+        }))
+        .sort((a, b) => b.crumbs - a.crumbs);
+
+      for (let i = 1; i < ranked.length; i++) {
+        if (ranked[i - 1].crumbs < ranked[i].crumbs) {
+          throw new Error("Leaderboard is not sorted by settled crumbs");
+        }
+      }
+      console.log(
+        `Leaderboard: ${ranked.map((r) => `${r.owner.slice(0, 4)}…=${r.crumbs}`).join(", ")}`
+      );
+    });
+
     it("Enforces the raid cooldown", async () => {
       try {
         await program.methods

@@ -37,7 +37,7 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchRaid = useCallback(async (): Promise<RaidState | null> => {
-    if (!program || !publicKey) return null;
+    if (!publicKey) return null;
 
     return (await program.account.raid.fetchNullable(
       getRaidPda(publicKey)
@@ -95,7 +95,7 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
 
   const commitRaid = useCallback(
     async (targetOwner: string) => {
-      if (!program || !publicKey) return;
+      if (!publicKey) return;
 
       setOutcome(null);
       let target: PublicKey;
@@ -133,7 +133,7 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
   );
 
   const revealRaid = useCallback(async () => {
-    if (!program || !publicKey || !raid) return;
+    if (!publicKey || !raid) return;
 
     const secret = recallSecret(publicKey);
     if (!secret) {

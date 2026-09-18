@@ -1,5 +1,6 @@
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 import JarPanel from "@/components/jar/JarPanel";
+import Leaderboard from "@/components/jar/Leaderboard";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
         </p>
         <WalletConnectButton />
         <JarPanel />
+        <Leaderboard />
       </main>
     </div>
   );

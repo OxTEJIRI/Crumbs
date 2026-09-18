@@ -7,6 +7,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { getJarPda } from "@/lib/solana/program";
 import { useCrumbJarProgram } from "@/lib/solana/useCrumbJarProgram";
 import { describeError, useTransactionStatus } from "./useTransactionStatus";
+import { useNowSeconds } from "./useNowSeconds";
 
 export interface CookieJarState {
   owner: PublicKey;
@@ -28,7 +29,7 @@ export function useCookieJar() {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchJar = useCallback(async (): Promise<CookieJarState | null> => {
-    if (!program || !publicKey) return null;
+    if (!publicKey) return null;
 
     return (await program.account.cookieJar.fetchNullable(
       getJarPda(publicKey)
@@ -63,7 +64,7 @@ export function useCookieJar() {
   }, [fetchJar]);
 
   const mintJar = useCallback(async () => {
-    if (!program || !publicKey) return;
+    if (!publicKey) return;
 
     await run(
       () =>
@@ -76,7 +77,7 @@ export function useCookieJar() {
   }, [program, publicKey, run, refresh]);
 
   const claimCrumbs = useCallback(async () => {
-    if (!program || !publicKey) return;
+    if (!publicKey) return;
 
     await run(
       () =>
@@ -97,30 +98,27 @@ export function useCookieJar() {
   };
 }
 
+/** The fields any jar-shaped record needs for its accrual to be estimated. */
+export type AccruingJar = Pick<
+  CookieJarState,
+  "crumbBalance" | "productionRate" | "lastClaimedTs"
+>;
+
 /**
  * Crumbs accrue continuously on-chain but are only written at claim time, so
- * between claims the UI ticks an estimate from the wall clock.
+ * between claims the UI estimates the balance from the wall clock.
  */
-export function useLiveCrumbs(jar: CookieJarState | null) {
-  const [nowSeconds, setNowSeconds] = useState(() =>
-    Math.floor(Date.now() / 1000)
-  );
-
-  useEffect(() => {
-    if (!jar) return;
-
-    const id = setInterval(
-      () => setNowSeconds(Math.floor(Date.now() / 1000)),
-      1000
-    );
-    return () => clearInterval(id);
-  }, [jar]);
-
-  if (!jar) return { banked: 0, pending: 0, total: 0 };
-
+export function settledCrumbs(jar: AccruingJar, nowSeconds: number) {
   const elapsed = Math.max(0, nowSeconds - jar.lastClaimedTs.toNumber());
   const banked = jar.crumbBalance.toNumber();
   const pending = elapsed * jar.productionRate.toNumber();
 
   return { banked, pending, total: banked + pending };
+}
+
+export function useLiveCrumbs(jar: CookieJarState | null) {
+  const nowSeconds = useNowSeconds();
+
+  if (!jar) return { banked: 0, pending: 0, total: 0 };
+  return settledCrumbs(jar, nowSeconds);
 }
