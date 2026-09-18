@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import type { BN } from "@anchor-lang/core";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { getJarPda } from "@/lib/solana/program";
@@ -82,36 +82,87 @@ export function useCookieJar() {
     };
   }, [fetchJar]);
 
+  const sendAndTrack = useCallback(
+    async (buildTransaction: () => Promise<Transaction>) => {
+      setError(null);
+      setSignature(null);
+      setStatus("pending");
+
+      try {
+        const transaction = await buildTransaction();
+
+        const sig = await sendTransaction(transaction, connection);
+        setSignature(sig);
+        setStatus("confirming");
+
+        const latestBlockhash = await connection.getLatestBlockhash();
+        await connection.confirmTransaction(
+          { signature: sig, ...latestBlockhash },
+          "confirmed"
+        );
+
+        setStatus("confirmed");
+        await refresh();
+      } catch (err) {
+        setError(describeError(err));
+        setStatus("failed");
+      }
+    },
+    [sendTransaction, connection, refresh]
+  );
+
   const mintJar = useCallback(async () => {
     if (!program || !publicKey) return;
 
-    setError(null);
-    setSignature(null);
-    setStatus("pending");
+    await sendAndTrack(() =>
+      program.methods.initializeJar().accounts({ owner: publicKey }).transaction()
+    );
+  }, [program, publicKey, sendAndTrack]);
 
-    try {
-      const transaction = await program.methods
-        .initializeJar()
-        .accounts({ owner: publicKey })
-        .transaction();
+  const claimCrumbs = useCallback(async () => {
+    if (!program || !publicKey) return;
 
-      const sig = await sendTransaction(transaction, connection);
-      setSignature(sig);
-      setStatus("confirming");
+    await sendAndTrack(() =>
+      program.methods.claimCrumbs().accounts({ owner: publicKey }).transaction()
+    );
+  }, [program, publicKey, sendAndTrack]);
 
-      const latestBlockhash = await connection.getLatestBlockhash();
-      await connection.confirmTransaction(
-        { signature: sig, ...latestBlockhash },
-        "confirmed"
-      );
+  return {
+    jar,
+    loading,
+    status,
+    signature,
+    error,
+    mintJar,
+    claimCrumbs,
+    refresh,
+  };
+}
 
-      setStatus("confirmed");
-      await refresh();
-    } catch (err) {
-      setError(describeError(err));
-      setStatus("failed");
-    }
-  }, [program, publicKey, sendTransaction, connection, refresh]);
+/**
+ * Crumbs accrue continuously on-chain but are only written at claim time, so
+ * between claims the UI ticks an estimate from the wall clock.
+ */
+export function useLiveCrumbs(jar: CookieJarState | null) {
+  const [nowSeconds, setNowSeconds] = useState(() =>
+    Math.floor(Date.now() / 1000)
+  );
 
-  return { jar, loading, status, signature, error, mintJar, refresh };
+  useEffect(() => {
+    if (!jar) return;
+
+    const id = setInterval(
+      () => setNowSeconds(Math.floor(Date.now() / 1000)),
+      1000
+    );
+    return () => clearInterval(id);
+  }, [jar]);
+
+  if (!jar) return { banked: 0, pending: 0, total: 0 };
+
+  const elapsed = Math.max(0, nowSeconds - jar.lastClaimedTs.toNumber());
+  const banked = jar.crumbBalance.toNumber();
+  const pending = elapsed * jar.productionRate.toNumber();
+
+  return { banked, pending, total: banked + pending };
 }

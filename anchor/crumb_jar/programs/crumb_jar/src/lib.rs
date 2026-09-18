@@ -17,4 +17,8 @@ pub mod crumb_jar {
     pub fn initialize_jar(ctx: Context<InitializeJar>) -> Result<()> {
         crate::instructions::initialize_jar::handle_initialize_jar(ctx)
     }
+
+    pub fn claim_crumbs(ctx: Context<ClaimCrumbs>) -> Result<()> {
+        crate::instructions::claim_crumbs::handle_claim_crumbs(ctx)
+    }
 }

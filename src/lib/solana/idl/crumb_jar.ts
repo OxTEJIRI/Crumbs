@@ -14,6 +14,53 @@ export type CrumbJar = {
   },
   "instructions": [
     {
+      "name": "claimCrumbs",
+      "discriminator": [
+        143,
+        41,
+        17,
+        208,
+        255,
+        57,
+        174,
+        122
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "jar",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "initializeJar",
       "discriminator": [
         228,
