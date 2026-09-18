@@ -7,6 +7,12 @@
   "dependencies": {
     "@anchor-lang/core": "^1.2.0"
   },
+  "comment:overrides": "rpc-websockets 9.3.9 ships a CommonJS build but depends on uuid ^14, which is ESM-only, so require() of it throws ERR_REQUIRE_ESM under ts-mocha. uuid 11 is dual CJS/ESM.",
+  "overrides": {
+    "rpc-websockets": {
+      "uuid": "^11.0.0"
+    }
+  },
   "devDependencies": {
     "chai": "^4.3.4",
     "mocha": "^9.0.3",
