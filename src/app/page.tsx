@@ -1,4 +1,5 @@
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
+import JarPanel from "@/components/jar/JarPanel";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
           to get started.
         </p>
         <WalletConnectButton />
+        <JarPanel />
       </main>
     </div>
   );

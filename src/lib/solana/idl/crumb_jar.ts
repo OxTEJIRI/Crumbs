@@ -1,0 +1,130 @@
+/**
+ * Program IDL in camelCase format in order to be used in JS/TS.
+ *
+ * Note that this is only a type helper and is not the actual IDL. The original
+ * IDL can be found at `target/idl/crumb_jar.json`.
+ */
+export type CrumbJar = {
+  "address": "85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr",
+  "metadata": {
+    "name": "crumbJar",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initializeJar",
+      "discriminator": [
+        228,
+        77,
+        238,
+        85,
+        8,
+        38,
+        159,
+        21
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "jar",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  107,
+                  105,
+                  101,
+                  95,
+                  106,
+                  97,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "cookieJar",
+      "discriminator": [
+        142,
+        10,
+        6,
+        22,
+        233,
+        55,
+        199,
+        204
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "cookieJar",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "crumbBalance",
+            "type": "u64"
+          },
+          {
+            "name": "productionRate",
+            "type": "u64"
+          },
+          {
+            "name": "lastClaimedTs",
+            "type": "i64"
+          },
+          {
+            "name": "defenseLevel",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "baseProductionRate",
+      "type": "u64",
+      "value": "1"
+    },
+    {
+      "name": "jarSeed",
+      "type": "bytes",
+      "value": "[99, 111, 111, 107, 105, 101, 95, 106, 97, 114]"
+    }
+  ]
+};
