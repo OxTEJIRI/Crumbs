@@ -6,47 +6,55 @@ import { useLeaderboard } from "@/hooks/useLeaderboard";
 const truncate = (address: string) =>
   `${address.slice(0, 4)}…${address.slice(-4)}`;
 
+const RANK_MEDALS: Record<number, string> = { 0: "🥇", 1: "🥈", 2: "🥉" };
+
 export default function Leaderboard() {
   const { publicKey } = useWallet();
   const { entries, loading, error } = useLeaderboard();
 
   return (
-    <div className="flex w-full max-w-md flex-col gap-4 rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]">
-      <h2 className="text-lg font-semibold">Richest jars</h2>
+    <div className="flex w-full flex-col gap-4 rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+      <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+        <span aria-hidden>🏆</span> Richest jars
+      </h2>
 
       {loading && entries.length === 0 ? (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Reading jars from Cookie Chain…
-        </p>
+        <ol className="flex flex-col gap-2">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="h-11 animate-pulse rounded-xl bg-background/60" />
+          ))}
+        </ol>
       ) : entries.length === 0 ? (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-muted">
           No jars on chain yet. Mint the first one.
         </p>
       ) : (
-        <ol className="flex flex-col gap-2">
+        <ol className="flex flex-col gap-1.5">
           {entries.map((entry, index) => {
             const isYou = publicKey?.equals(entry.owner) ?? false;
 
             return (
               <li
                 key={entry.jar.toString()}
-                className={`flex items-baseline justify-between gap-3 rounded-lg px-3 py-2 text-sm ${
-                  isYou
-                    ? "bg-black/[.06] font-medium dark:bg-white/[.10]"
-                    : ""
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                  isYou ? "bg-primary/10 font-medium" : "hover:bg-background/60"
                 }`}
               >
-                <span className="w-5 shrink-0 text-zinc-600 tabular-nums dark:text-zinc-400">
-                  {index + 1}
+                <span className="w-6 shrink-0 text-center tabular-nums">
+                  {RANK_MEDALS[index] ?? (
+                    <span className="text-muted">{index + 1}</span>
+                  )}
                 </span>
                 <span className="flex-1 truncate font-mono">
                   {truncate(entry.owner.toString())}
-                  {isYou && " (you)"}
+                  {isYou && (
+                    <span className="ml-1.5 text-primary">(you)</span>
+                  )}
                 </span>
-                <span className="shrink-0 text-zinc-600 tabular-nums dark:text-zinc-400">
+                <span className="hidden shrink-0 text-muted tabular-nums sm:inline">
                   def {entry.defenseLevel}
                 </span>
-                <span className="w-24 shrink-0 text-right font-mono tabular-nums">
+                <span className="w-20 shrink-0 text-right font-mono tabular-nums">
                   {entry.crumbs.toLocaleString()}
                 </span>
               </li>
@@ -55,9 +63,7 @@ export default function Leaderboard() {
         </ol>
       )}
 
-      {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-      )}
+      {error && <p className="text-sm text-danger">{error}</p>}
     </div>
   );
 }

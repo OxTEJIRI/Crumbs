@@ -1,95 +1,89 @@
 "use client";
 
-import { useWallet } from "@solana/wallet-adapter-react";
 import { useCookieJar, useLiveCrumbs } from "@/hooks/useCookieJar";
+import JarVisual from "./JarVisual";
 import RaidPanel from "./RaidPanel";
 
 export default function JarPanel() {
-  const { publicKey } = useWallet();
   const { jar, loading, status, error, mintJar, claimCrumbs, refresh } =
     useCookieJar();
   const { banked, pending, total } = useLiveCrumbs(jar);
 
-  if (!publicKey) {
-    return (
-      <p className="text-zinc-600 dark:text-zinc-400">
-        Connect your wallet to bake your first jar.
-      </p>
-    );
-  }
-
   const busy = status === "pending" || status === "confirming";
 
   return (
-    <div className="flex w-full max-w-md flex-col items-center gap-6">
-    <div className="flex w-full flex-col items-center gap-4 rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]">
-      {loading && !jar ? (
-        <p className="text-zinc-600 dark:text-zinc-400">Checking for your jar…</p>
-      ) : jar ? (
-        <>
-          <div className="flex flex-col items-center gap-1">
-            <span className="font-mono text-4xl tabular-nums">
-              {total.toLocaleString()}
-            </span>
-            <span className="text-sm text-zinc-600 dark:text-zinc-400">
-              crumbs
-            </span>
+    <div className="flex w-full flex-col gap-6">
+      <div className="flex flex-col items-center gap-5 rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+        {loading && !jar ? (
+          <div className="flex flex-col items-center gap-3 py-6">
+            <div className="h-28 w-28 animate-pulse rounded-full bg-border/60" />
+            <p className="text-sm text-muted">Checking for your jar…</p>
           </div>
+        ) : jar ? (
+          <>
+            <div className="flex w-full items-center gap-5 sm:gap-6">
+              <JarVisual crumbs={total} />
+              <div className="flex flex-1 flex-col gap-0.5">
+                <span className="text-sm text-muted">Your crumbs</span>
+                <span className="font-display text-4xl font-semibold tabular-nums sm:text-5xl">
+                  {total.toLocaleString()}
+                </span>
+              </div>
+            </div>
 
-          <dl className="grid w-full grid-cols-2 gap-3 text-sm">
-            <dt className="text-zinc-600 dark:text-zinc-400">In the jar</dt>
-            <dd className="text-right font-mono tabular-nums">
-              {banked.toLocaleString()}
-            </dd>
-            <dt className="text-zinc-600 dark:text-zinc-400">Unclaimed</dt>
-            <dd className="text-right font-mono tabular-nums">
-              {pending.toLocaleString()}
-            </dd>
-            <dt className="text-zinc-600 dark:text-zinc-400">Production rate</dt>
-            <dd className="text-right font-mono tabular-nums">
-              {jar.productionRate.toString()}/s
-            </dd>
-            <dt className="text-zinc-600 dark:text-zinc-400">Defense level</dt>
-            <dd className="text-right font-mono tabular-nums">
-              {jar.defenseLevel}
-            </dd>
-          </dl>
+            <dl className="grid w-full grid-cols-2 gap-x-4 gap-y-3 rounded-2xl bg-background/60 p-4 text-sm">
+              <dt className="text-muted">In the jar</dt>
+              <dd className="text-right font-mono tabular-nums">
+                {banked.toLocaleString()}
+              </dd>
+              <dt className="text-muted">Unclaimed</dt>
+              <dd className="text-right font-mono tabular-nums text-primary">
+                {pending.toLocaleString()}
+              </dd>
+              <dt className="text-muted">Production rate</dt>
+              <dd className="text-right font-mono tabular-nums">
+                {jar.productionRate.toString()}/s
+              </dd>
+              <dt className="text-muted">Defense level</dt>
+              <dd className="text-right font-mono tabular-nums">
+                {jar.defenseLevel}
+              </dd>
+            </dl>
 
-          <button
-            onClick={claimCrumbs}
-            disabled={busy || pending === 0}
-            className="h-12 w-full rounded-full bg-foreground px-5 font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
-          >
-            {busy
-              ? "Claiming…"
-              : pending === 0
-                ? "Nothing to claim yet"
-                : `Claim ${pending.toLocaleString()} crumbs`}
-          </button>
-        </>
-      ) : (
-        <>
-          <p className="text-center text-zinc-600 dark:text-zinc-400">
-            You don&apos;t have a Cookie Jar yet.
-          </p>
-          <button
-            onClick={mintJar}
-            disabled={busy}
-            className="h-12 w-full rounded-full bg-foreground px-5 font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
-          >
-            {busy ? "Minting…" : "Mint your Cookie Jar"}
-          </button>
-        </>
-      )}
+            <button
+              onClick={claimCrumbs}
+              disabled={busy || pending === 0}
+              className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+            >
+              {busy
+                ? "Claiming…"
+                : pending === 0
+                  ? "Nothing to claim yet"
+                  : `Claim ${pending.toLocaleString()} crumbs`}
+            </button>
+          </>
+        ) : (
+          <>
+            <JarVisual crumbs={0} />
+            <p className="text-center text-muted">
+              You don&apos;t have a Cookie Jar yet.
+            </p>
+            <button
+              onClick={mintJar}
+              disabled={busy}
+              className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+            >
+              {busy ? "Minting…" : "Mint your Cookie Jar"}
+            </button>
+          </>
+        )}
 
-      {error && (
-        <p className="text-center text-sm text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
-    </div>
+        {error && (
+          <p className="text-center text-sm text-danger">{error}</p>
+        )}
+      </div>
 
-    {jar && <RaidPanel onJarChanged={refresh} />}
+      {jar && <RaidPanel onJarChanged={refresh} />}
     </div>
   );
 }

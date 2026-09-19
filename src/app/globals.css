@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbf3e6;
+  --surface: #fffcf6;
+  --foreground: #372615;
+  --muted: #8a7460;
+  --border: #e9dcc4;
+  --primary: #c9791f;
+  --primary-hover: #b3690f;
+  --primary-foreground: #fffaf0;
+  --accent: #e8a33d;
+  --danger: #c14e33;
+  --danger-surface: #fbe9e2;
+  --success: #4c8a5e;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-success: var(--success);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fredoka);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1b140c;
+    --surface: #251b11;
+    --foreground: #f5e9d8;
+    --muted: #b09b83;
+    --border: #3c2f1e;
+    --primary: #e3a13c;
+    --primary-hover: #f0b054;
+    --primary-foreground: #2a1a08;
+    --accent: #e3a13c;
+    --danger: #e2775a;
+    --danger-surface: #3a2119;
+    --success: #6fb886;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Re-skin @solana/wallet-adapter-react-ui to match the bakery palette
+   instead of its default purple. */
+.wallet-adapter-button-trigger {
+  background-color: var(--primary) !important;
+  border-radius: 9999px !important;
+  font-family: var(--font-sans) !important;
+}
+.wallet-adapter-button-trigger:not([disabled]):hover {
+  background-color: var(--primary-hover) !important;
+}
+.wallet-adapter-button {
+  color: var(--primary-foreground) !important;
+}
+.wallet-adapter-modal-wrapper {
+  background: var(--surface) !important;
+  color: var(--foreground) !important;
+}
+.wallet-adapter-modal-title {
+  color: var(--foreground) !important;
+}
+.wallet-adapter-modal-list .wallet-adapter-button {
+  color: var(--foreground) !important;
+}
+.wallet-adapter-modal-middle-button {
+  background-color: var(--primary) !important;
+  border-radius: 9999px !important;
+}
+.wallet-adapter-modal-overlay {
+  background: rgb(0 0 0 / 0.5) !important;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -15,14 +15,16 @@ export default function RaidPanel({
   const busy = status === "pending" || status === "confirming";
 
   return (
-    <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-black/[.08] p-6 dark:border-white/[.145]">
-      <h2 className="self-start text-lg font-semibold">Raid a jar</h2>
+    <div className="flex w-full flex-col gap-4 rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+      <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+        <span aria-hidden>⚔️</span> Raid a jar
+      </h2>
 
       {raid ? (
         <>
-          <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-center text-sm text-muted">
             Raid committed against{" "}
-            <span className="font-mono">
+            <span className="font-mono text-foreground">
               {raid.target.toString().slice(0, 8)}…
             </span>
             . Reveal your secret to settle it.
@@ -30,7 +32,7 @@ export default function RaidPanel({
           <button
             onClick={revealRaid}
             disabled={busy || !canReveal}
-            className="h-12 w-full rounded-full bg-foreground px-5 font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+            className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
           >
             {busy
               ? "Revealing…"
@@ -39,7 +41,7 @@ export default function RaidPanel({
                 : "Waiting for the chain…"}
           </button>
           {!canReveal && (
-            <p className="text-center text-xs text-zinc-600 dark:text-zinc-400">
+            <p className="text-center text-xs text-muted">
               The outcome is drawn from a block produced after your commit, so
               nobody — including you — can know it in advance.
             </p>
@@ -52,12 +54,12 @@ export default function RaidPanel({
             onChange={(event) => setTarget(event.target.value)}
             placeholder="Target wallet address"
             spellCheck={false}
-            className="h-12 w-full rounded-full border border-black/[.08] bg-transparent px-5 font-mono text-sm outline-none focus:border-black/30 dark:border-white/[.145] dark:focus:border-white/40"
+            className="h-12 w-full rounded-full border border-border bg-background px-5 font-mono text-sm outline-none transition-colors focus:border-primary"
           />
           <button
             onClick={() => commitRaid(target)}
             disabled={busy || target.trim().length === 0}
-            className="h-12 w-full rounded-full bg-foreground px-5 font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+            className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
           >
             {busy ? "Committing…" : "Commit raid (stakes 10 crumbs)"}
           </button>
@@ -65,14 +67,12 @@ export default function RaidPanel({
       )}
 
       {outcome && (
-        <p className="text-center text-sm font-medium">{outcome}</p>
-      )}
-
-      {error && (
-        <p className="text-center text-sm text-red-600 dark:text-red-400">
-          {error}
+        <p className="text-center text-sm font-medium text-foreground">
+          {outcome}
         </p>
       )}
+
+      {error && <p className="text-center text-sm text-danger">{error}</p>}
     </div>
   );
 }

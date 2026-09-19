@@ -49,6 +49,14 @@ const STATUS_LABELS: Record<TxStatus, string> = {
   failed: "Failed",
 };
 
+const STATUS_ICONS: Record<TxStatus, string> = {
+  idle: "",
+  pending: "✍️",
+  confirming: "⏳",
+  confirmed: "✅",
+  failed: "❌",
+};
+
 const DISMISS_AFTER_MS = 6000;
 
 export function TransactionToastProvider({ children }: { children: ReactNode }) {
@@ -112,18 +120,21 @@ export function TransactionToastProvider({ children }: { children: ReactNode }) 
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex w-full max-w-sm flex-col gap-1 rounded-xl border p-4 shadow-lg backdrop-blur ${
+            className={`pointer-events-auto flex w-full max-w-sm animate-[toast-in_0.2s_ease-out] flex-col gap-1 rounded-2xl border p-4 shadow-lg backdrop-blur ${
               toast.status === "failed"
-                ? "border-red-500/30 bg-red-50/95 dark:bg-red-950/90"
-                : "border-black/[.08] bg-white/95 dark:border-white/[.145] dark:bg-zinc-900/95"
+                ? "border-danger/30 bg-danger-surface/95"
+                : "border-border bg-surface/95"
             }`}
           >
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-sm font-medium">{toast.label}</span>
+              <span className="flex items-center gap-1.5 text-sm font-medium">
+                <span aria-hidden>{STATUS_ICONS[toast.status]}</span>
+                {toast.label}
+              </span>
               <button
                 onClick={() => dismiss(toast.id)}
                 aria-label="Dismiss"
-                className="shrink-0 text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
+                className="shrink-0 text-muted transition-colors hover:text-foreground"
               >
                 ✕
               </button>
@@ -132,8 +143,8 @@ export function TransactionToastProvider({ children }: { children: ReactNode }) 
             <span
               className={
                 toast.status === "failed"
-                  ? "text-sm text-red-700 dark:text-red-300"
-                  : "text-sm text-zinc-600 dark:text-zinc-400"
+                  ? "text-sm text-danger"
+                  : "text-sm text-muted"
               }
             >
               {toast.error ?? STATUS_LABELS[toast.status]}
@@ -144,7 +155,7 @@ export function TransactionToastProvider({ children }: { children: ReactNode }) 
                 href={`${COOKIESCAN_TX_URL}/${toast.signature}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="self-start text-xs underline underline-offset-4"
+                className="self-start text-xs text-primary underline underline-offset-4"
               >
                 View on CookieScan
               </a>
