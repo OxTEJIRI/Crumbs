@@ -55,7 +55,7 @@ anchor/crumb_jar/         on-chain program (separate workspace — own
 
 **Raids:** two-transaction commit-reveal. The attacker commits `sha256(secret || attacker)` and stakes crumbs up front. On reveal, the outcome is drawn from `hash(secret, slot_hash_minted_after_commit)` — a slot hash that didn't exist at commit time, so the result is unknowable to the attacker until it's too late to back out of. The stake being taken at commit (not reveal) means walking away costs exactly what losing costs, so there's no reason to abandon an unfavorable raid. A reveal must wait until the chain is two slots past the commit slot, since the SlotHashes sysvar only gains an entry for a slot once that slot is over.
 
-**Leaderboard:** ranks jars by settled wealth (banked + accrued-since-claim), read via `getProgramAccounts` rather than the Cookie DAS API — the RPC doesn't serve DAS methods, and DAS indexes Metaplex assets rather than plain program accounts like jars.
+**Leaderboard:** ranks jars by settled wealth (banked + accrued-since-claim), read via `getProgramAccounts` rather than the Cookie DAS API. Cookie Chain does run a real DAS indexer at `api.cookiescan.io` (separate from the RPC at `rpc.cookiescan.io`), but DAS indexes Metaplex digital assets, and jars are plain Anchor program accounts, not Metaplex assets — confirmed by querying it directly (`getAssetsByOwner` for the program returns zero results). DAS becomes the right source once Jar/Recipe NFTs exist.
 
 ## Running the frontend
 
