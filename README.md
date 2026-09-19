@@ -16,7 +16,16 @@ All five steps of the build order are implemented and covered by tests against a
 - [x] Leaderboard
 - [x] Transaction status UI (toasts) + error handling
 
-**Deployed to Cookie Chain** at `85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr` — verified with a real `initializeJar` transaction that minted and read back a jar. **Not yet done:** nobody has clicked through mint/claim/raid with an actual Nightly wallet in a browser. Everything is proven on-chain-correct by the Anchor test suite and one scripted mint; the browser wallet path itself is still untested.
+**Deployed to Cookie Chain** at `85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr`, and the full mint flow has been clicked through end-to-end with a real Nightly wallet in a browser.
+
+## Nightly setup
+
+Nightly needs Cookie Chain added as a custom network before it'll sign and send correctly — without this, minting fails with an opaque `WalletSendTransactionError: Failed to send transaction` (Nightly is silently trying to broadcast against its default network, where `crumb_jar` doesn't exist). In Nightly's settings, add a custom RPC:
+
+- **RPC URL:** `https://rpc.cookiescan.io`
+- **Name:** Cookie Chain (or whatever label it accepts)
+
+Then switch Nightly to that network before connecting.
 
 ## Stack
 
