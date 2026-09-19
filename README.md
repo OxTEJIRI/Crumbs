@@ -16,7 +16,7 @@ All five steps of the build order are implemented and covered by tests against a
 - [x] Leaderboard
 - [x] Transaction status UI (toasts) + error handling
 
-**Not yet done:** the program has not been deployed to Cookie Chain, so nothing here has been exercised through an actual wallet in a browser yet. Everything below is proven on-chain-correct by the Anchor test suite, not battle-tested end-to-end.
+**Deployed to Cookie Chain** at `85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr` — verified with a real `initializeJar` transaction that minted and read back a jar. **Not yet done:** nobody has clicked through mint/claim/raid with an actual Nightly wallet in a browser. Everything is proven on-chain-correct by the Anchor test suite and one scripted mint; the browser wallet path itself is still untested.
 
 ## Stack
 
@@ -75,3 +75,14 @@ anchor test --validator legacy
 ```
 
 `--validator legacy` uses `solana-test-validator` instead of Anchor's default `surfpool`. Requires the standard Solana/Anchor toolchain (Rust, `solana-cli`, `anchor-cli`) — see [Anchor's install docs](https://www.anchor-lang.com/docs/installation) if you don't have it set up.
+
+### Deploying
+
+```bash
+anchor build --arch v0
+anchor deploy --provider.cluster https://rpc.cookiescan.io --provider.wallet <path-to-upgrade-authority-keypair>
+```
+
+**`--arch v0` is required, on both build and deploy.** Anchor defaults to `--arch v3` (the newest SBPF version), but Cookie Chain hasn't activated that feature on-chain yet — a `v3` build deploys with `invalid account data for instruction` / `Detected sbpf_version required by the executable which are not enabled`. This can't be pinned in `Anchor.toml` (an `arch` key there is silently ignored), so it has to be passed on every build and deploy command by hand.
+
+Cookie Chain is **mainnet — there is no faucet, testnet, or devnet**. Every transaction, including a failed deploy attempt, costs real $COOK. Check the actual cost first with `solana rent <bytes> --url https://rpc.cookiescan.io` before deploying.
