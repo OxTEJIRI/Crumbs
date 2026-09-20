@@ -40,13 +40,20 @@ export function describeError(err: unknown): string {
   if (/WrongTarget/.test(message)) {
     return "That isn't the jar you committed to raid.";
   }
+  if (/SubmittedTooSoon/.test(message)) {
+    return "Play a little longer before submitting a score.";
+  }
+  if (/ScoreImplausible/.test(message)) {
+    return "That score isn't plausible for how long you played.";
+  }
   return message;
 }
 
 /**
  * Drives one transaction through signature and confirmation, reporting every
  * step as a toast. Callers keep the returned status only to disable buttons
- * while their own transaction is in flight.
+ * while their own transaction is in flight, and the resolved boolean to
+ * decide whether it's safe to assume the transaction's effects happened.
  */
 export function useTransactionStatus() {
   const { connection } = useConnection();
@@ -60,7 +67,7 @@ export function useTransactionStatus() {
       label: string,
       buildTransaction: () => Promise<Transaction>,
       onConfirmed?: (signature: string) => Promise<void>
-    ) => {
+    ): Promise<boolean> => {
       const toastId = toasts.push(label);
       setStatus("pending");
 
@@ -80,12 +87,14 @@ export function useTransactionStatus() {
         setStatus("confirmed");
         toasts.update(toastId, { status: "confirmed", signature });
         await onConfirmed?.(signature);
+        return true;
       } catch (err) {
         setStatus("failed");
         toasts.update(toastId, {
           status: "failed",
           error: describeError(err),
         });
+        return false;
       }
     },
     [sendTransaction, connection, toasts]

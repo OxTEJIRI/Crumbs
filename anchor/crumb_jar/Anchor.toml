@@ -7,6 +7,7 @@ skip-lint = false
 
 [programs.localnet]
 crumb_jar = "85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr"
+cookie_crush = "2jT3Tqpz2bavkJeDQiQTG8S6i3X1DMLUU6Gazeb9LvLM"
 
 [provider]
 cluster = "localnet"

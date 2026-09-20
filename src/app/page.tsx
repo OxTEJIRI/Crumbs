@@ -26,9 +26,10 @@ export default function Home() {
             href="/games/jar-wars"
           />
           <GameCard
-            emoji="🎲"
-            title="More games"
-            description="This is a platform, not just one game — new games land here over time."
+            emoji="🍬"
+            title="Cookie Crush"
+            description="Match 3 or more treats before the clock runs out. Start a level and submit your score on-chain, then climb the leaderboard."
+            href="/games/cookie-crush"
           />
           <GameCard
             emoji="✨"
