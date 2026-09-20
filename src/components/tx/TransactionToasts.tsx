@@ -58,6 +58,7 @@ const STATUS_ICONS: Record<TxStatus, string> = {
 };
 
 const DISMISS_AFTER_MS = 6000;
+const DISMISS_FAILURE_AFTER_MS = 9000;
 
 export function TransactionToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<TransactionToast[]>([]);
@@ -88,12 +89,17 @@ export function TransactionToastProvider({ children }: { children: ReactNode }) 
         )
       );
 
-      // A success speaks for itself and can retire; a failure stays until the
-      // player has actually read why.
+      // Failures get longer on screen than a success, since there's an
+      // actual message to read, but both eventually clear on their own.
       if (patch.status === "confirmed") {
         timers.current.set(
           id,
           setTimeout(() => dismiss(id), DISMISS_AFTER_MS)
+        );
+      } else if (patch.status === "failed") {
+        timers.current.set(
+          id,
+          setTimeout(() => dismiss(id), DISMISS_FAILURE_AFTER_MS)
         );
       }
     },
