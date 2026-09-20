@@ -28,7 +28,7 @@ See [GAME_DESIGN.md](GAME_DESIGN.md) for Jar Wars' full design and [CLAUDE.md](C
 
 Deployed to Cookie Chain at `85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr`, and the full mint flow has been clicked through end-to-end with a real Nightly wallet in a browser.
 
-**Cookie Crush** — on-chain program written and passing tests against a local validator (start a level, submit a score, plausibility check, running best score). Not yet deployed to Cookie Chain or played through a real wallet.
+**Cookie Crush** — deployed to Cookie Chain at [`2jT3Tqpz2bavkJeDQiQTG8S6i3X1DMLUU6Gazeb9LvLM`](https://cookiescan.io/account/2jT3Tqpz2bavkJeDQiQTG8S6i3X1DMLUU6Gazeb9LvLM), and `start_level`/`submit_score` confirmed working end-to-end with a real transaction. Not yet played through a browser wallet — that's the last step.
 
 ## Nightly setup
 
