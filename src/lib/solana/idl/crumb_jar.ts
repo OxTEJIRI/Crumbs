@@ -487,8 +487,12 @@ export type CrumbJar = {
   "constants": [
     {
       "name": "baseProductionRate",
+      "docs": [
+        "Tuned for a fast, replayable feel: a claim after even a short session",
+        "banks a satisfying number instead of a trickle."
+      ],
       "type": "u64",
-      "value": "1"
+      "value": "20"
     },
     {
       "name": "baseRaidSuccessPercent",
@@ -507,8 +511,12 @@ export type CrumbJar = {
     },
     {
       "name": "raidCooldownSeconds",
+      "docs": [
+        "Short enough that a player can raid again right away rather than being",
+        "locked out for minutes — the whole point of a game you want to replay."
+      ],
       "type": "i64",
-      "value": "300"
+      "value": "30"
     },
     {
       "name": "raidSeed",
@@ -520,10 +528,12 @@ export type CrumbJar = {
       "docs": [
         "Staked by the attacker at commit time and forfeited on a loss. Taking it",
         "up front means walking away from an unfavourable reveal costs the same as",
-        "losing, so there is no reason to abandon a raid."
+        "losing, so there is no reason to abandon a raid. Scaled with",
+        "BASE_PRODUCTION_RATE so it stays roughly \"a few seconds of accrual,\" not",
+        "trivial and not crushing."
       ],
       "type": "u64",
-      "value": "10"
+      "value": "100"
     },
     {
       "name": "raidStealPercent",

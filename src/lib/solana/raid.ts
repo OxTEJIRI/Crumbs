@@ -1,7 +1,22 @@
 import { PublicKey } from "@solana/web3.js";
-import { CRUMB_JAR_PROGRAM_ID } from "./program";
+import { CRUMB_JAR_PROGRAM_ID, crumbJarIdl } from "./program";
 
 export const RAID_SEED = Buffer.from("raid");
+
+/**
+ * The jar minted while testing the deploy — it's been accruing crumbs
+ * unattended ever since, which makes it a permanent, always-worthwhile raid
+ * target. Solves "who do I raid" without needing another live player.
+ */
+export const PRACTICE_JAR_OWNER = new PublicKey(
+  "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+);
+
+/** Reads RAID_STAKE from the on-chain program's own IDL constants, so the UI never hardcodes a value that could drift from what's actually enforced. */
+export function getRaidStake(): number {
+  const entry = crumbJarIdl.constants.find((c) => c.name === "RAID_STAKE");
+  return entry ? Number(entry.value) : 0;
+}
 
 export function getRaidPda(attacker: PublicKey): PublicKey {
   const [pda] = PublicKey.findProgramAddressSync(

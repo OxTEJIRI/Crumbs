@@ -3,7 +3,7 @@ import { Program } from "@anchor-lang/core";
 import { createHash, randomBytes } from "crypto";
 import { CrumbJar } from "../target/types/crumb_jar";
 
-const RAID_STAKE = 10;
+const RAID_STAKE = 100;
 const RAID_STEAL_PERCENT = 20;
 
 const jarPda = (programId: anchor.web3.PublicKey, key: anchor.web3.PublicKey) =>

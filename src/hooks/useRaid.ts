@@ -25,6 +25,13 @@ export interface RaidState {
   bump: number;
 }
 
+export interface RaidOutcome {
+  succeeded: boolean;
+  roll: number;
+  threshold: number;
+  looted: number;
+}
+
 export function useRaid(onJarChanged?: () => Promise<void>) {
   const { connection } = useConnection();
   const { publicKey } = useWallet();
@@ -33,7 +40,7 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
 
   const [raid, setRaid] = useState<RaidState | null>(null);
   const [currentSlot, setCurrentSlot] = useState<number | null>(null);
-  const [outcome, setOutcome] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<RaidOutcome | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchRaid = useCallback(async (): Promise<RaidState | null> => {
@@ -184,11 +191,14 @@ export function useRaid(onJarChanged?: () => Promise<void>) {
   };
 }
 
-/** The program reports the roll in its logs; surface it rather than re-deriving. */
+const OUTCOME_PATTERN =
+  /Raid (succeeded|failed) \(roll (\d+) vs threshold (\d+)\), looted (\d+) crumbs/;
+
+/** The program reports the roll and loot in its logs; parse rather than re-derive. */
 async function readOutcome(
   connection: ReturnType<typeof useConnection>["connection"],
   signature: string
-): Promise<string | null> {
+): Promise<RaidOutcome | null> {
   for (let attempt = 0; attempt < 10; attempt++) {
     const detail = await connection.getTransaction(signature, {
       commitment: "confirmed",
@@ -198,7 +208,16 @@ async function readOutcome(
     const line = detail?.meta?.logMessages?.find((log) =>
       log.includes("Raid succeeded") || log.includes("Raid failed")
     );
-    if (line) return line.replace(/^Program log: /, "");
+    if (line) {
+      const match = line.match(OUTCOME_PATTERN);
+      if (!match) return null;
+      return {
+        succeeded: match[1] === "succeeded",
+        roll: Number(match[2]),
+        threshold: Number(match[3]),
+        looted: Number(match[4]),
+      };
+    }
 
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
