@@ -100,7 +100,7 @@ export type NibbleProgram = {
             "pushes heat to the cap."
           ],
           "writable": true,
-          "address": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+          "address": "568tU9FMksJDxjkLBjWisSA4J4C5uPH87NCCkyREwrxe"
         }
       ],
       "args": []
@@ -146,7 +146,7 @@ export type NibbleProgram = {
             "idle check turns up a burn."
           ],
           "writable": true,
-          "address": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+          "address": "568tU9FMksJDxjkLBjWisSA4J4C5uPH87NCCkyREwrxe"
         },
         {
           "name": "systemProgram",
@@ -201,7 +201,7 @@ export type NibbleProgram = {
             "credited, never read or deserialized."
           ],
           "writable": true,
-          "address": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+          "address": "568tU9FMksJDxjkLBjWisSA4J4C5uPH87NCCkyREwrxe"
         },
         {
           "name": "systemProgram",
@@ -256,7 +256,7 @@ export type NibbleProgram = {
             "whole pot if this call's idle check finds it already overdue to burn."
           ],
           "writable": true,
-          "address": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+          "address": "568tU9FMksJDxjkLBjWisSA4J4C5uPH87NCCkyREwrxe"
         }
       ],
       "args": []
@@ -504,13 +504,14 @@ export type NibbleProgram = {
     {
       "name": "jarAddress",
       "docs": [
-        "TODO(before mainnet deploy): replace with Cookie Chain's actual",
-        "community treasury address. This is our own deploy wallet, a safe",
-        "placeholder for local testing only — burns and fee cuts must not go",
-        "anywhere real until the genuine address is confirmed."
+        "Cookie Chain's community treasury — takes the protocol cut on every",
+        "ending and the entire pot when a cookie burns. Off-curve and",
+        "system-owned, so it has no private key and is only ever credited, never",
+        "a signer. It already holds far more than the rent-exempt minimum, so",
+        "even the smallest possible cut lands without a rent failure."
       ],
       "type": "pubkey",
-      "value": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+      "value": "568tU9FMksJDxjkLBjWisSA4J4C5uPH87NCCkyREwrxe"
     },
     {
       "name": "jarShareBps",

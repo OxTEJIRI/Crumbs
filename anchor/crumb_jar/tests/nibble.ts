@@ -72,10 +72,9 @@ describe("nibble", () => {
     program.programId
   );
 
-  // Placeholder jar from constants.rs — TODO(before mainnet deploy): swap
-  // for the real Cookie Chain treasury once confirmed.
+  // Cookie Chain's community treasury, matching JAR_ADDRESS in constants.rs.
   const jar = new anchor.web3.PublicKey(
-    "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+    "568tU9FMksJDxjkLBjWisSA4J4C5uPH87NCCkyREwrxe"
   );
 
   const nibbler = anchor.web3.Keypair.generate();

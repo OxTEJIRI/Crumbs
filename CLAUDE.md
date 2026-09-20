@@ -58,11 +58,14 @@ so the UI can preview a bite before signing. The frontend reads every
 constant from the IDL rather than hardcoding, so it can't drift from what
 the chain enforces.
 
+`JAR_ADDRESS` is Cookie Chain's real community treasury
+(`568tU9FM…wrxe`): off-curve, system-owned, already well above the
+rent-exempt minimum, and only ever credited — never a signer.
+
 Status: program complete, 9 math unit tests + 13 integration tests passing
-against a local validator. **Not deployed.** `JAR_ADDRESS` in
-`constants.rs` is still a placeholder pointing at our own deploy wallet —
-it must be replaced with Cookie Chain's real community treasury before any
-deploy, since burns and fee cuts send real COOK there.
+against a local validator (including a fresh chain where the treasury
+account does not exist yet). **Not yet deployed to Cookie Chain, and never
+played through a real wallet** — the connected-wallet UI is unverified.
 
 ### Future games
 None yet beyond these three. Add a game by suggesting it; each new game
