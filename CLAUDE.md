@@ -62,10 +62,13 @@ the chain enforces.
 (`568tU9FM…wrxe`): off-curve, system-owned, already well above the
 rent-exempt minimum, and only ever credited — never a signer.
 
-Status: program complete, 9 math unit tests + 13 integration tests passing
-against a local validator (including a fresh chain where the treasury
-account does not exist yet). **Not yet deployed to Cookie Chain, and never
-played through a real wallet** — the connected-wallet UI is unverified.
+Status: deployed to Cookie Chain at
+`96A38RPbCfpcv8o5ZCbTSq8Q1kT6DBujHygJMiWLDbWj`. 9 math unit tests + 13
+integration tests passing against a local validator (including a fresh
+chain where the treasury account does not exist yet). **Not yet played
+through a real wallet** — the connected-wallet UI is unverified; a
+minimum-stake smoke test (bake → bite → glaze → pull) should happen before
+linking this anywhere public.
 
 ### Future games
 None yet beyond these three. Add a game by suggesting it; each new game
