@@ -1,6 +1,8 @@
-# 🍪 Crumbs — Game Design Document
+# 🍪 Jar Wars — Game Design Document
 
 **Tagline:** *Bake. Hoard. Raid. Survive the Jar Wars.*
+
+> Crumbs has since grown into a hub for multiple on-chain games — this document describes the design of the first one, Jar Wars (the cookie jar / raiding game below), not the platform as a whole. See the root [README](README.md) for the hub.
 
 ## The Concept
 

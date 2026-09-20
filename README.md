@@ -7,13 +7,15 @@
 
 Built for Cookie Chain's "Build a cApp" hackathon.
 
-Crumbs is an on-chain idle-strategy game on Cookie Chain. Every player owns a **Cookie Jar** — an on-chain account that passively generates `$CRUMB` over time. Claim your crumbs, raid other players' jars to steal theirs, and climb the leaderboard. Every meaningful action is a real transaction; nothing is mocked.
+Crumbs is a hub for on-chain games on Cookie Chain — connect a wallet once, then pick a game to play. Every game action is a real transaction; nothing is mocked.
 
-See [GAME_DESIGN.md](GAME_DESIGN.md) for the full design and [CLAUDE.md](CLAUDE.md) for the build order this repo follows.
+The first game is **Jar Wars** (`/games/jar-wars`): every player owns a **Cookie Jar**, an on-chain account that passively generates `$CRUMB` over time. Claim your crumbs, raid other players' jars to steal theirs, and climb the leaderboard.
+
+See [GAME_DESIGN.md](GAME_DESIGN.md) for Jar Wars' full design and [CLAUDE.md](CLAUDE.md) for the build order this repo follows.
 
 ## Status
 
-All five steps of the build order are implemented and covered by tests against a local validator:
+**Jar Wars** — all five build-order steps are implemented and covered by tests against a local validator:
 
 - [x] Wallet connect (Nightly) + jar minting
 - [x] Passive crumb accrual + claim transaction
@@ -21,7 +23,9 @@ All five steps of the build order are implemented and covered by tests against a
 - [x] Leaderboard
 - [x] Transaction status UI (toasts) + error handling
 
-**Deployed to Cookie Chain** at `85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr`, and the full mint flow has been clicked through end-to-end with a real Nightly wallet in a browser.
+Deployed to Cookie Chain at `85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr`, and the full mint flow has been clicked through end-to-end with a real Nightly wallet in a browser.
+
+**More games** — none yet; the hub has placeholder slots ready for them.
 
 ## Nightly setup
 
@@ -43,16 +47,20 @@ Then switch Nightly to that network before connecting.
 
 ```
 src/                      Next.js frontend
-  app/                     pages, layout, global styles
+  app/
+    page.tsx                the hub — lists every game
+    games/jar-wars/          Jar Wars' page (hero, dashboard, sub-header)
   components/
-    jar/                   jar dashboard, raid panel, leaderboard
-    tx/                     toast layer for transaction status
-    wallet/                 wallet connect button, provider
+    hub/                     GameCard, hub-only UI
+    jar/                     Jar Wars: jar dashboard, raid panel, leaderboard
+    tx/                      toast layer for transaction status (shared)
+    wallet/                  wallet connect button, provider (shared)
+    layout/                  global Header (shared)
   hooks/                   useCookieJar, useRaid, useLeaderboard, ...
   lib/solana/              program client, IDL, config, raid helpers
 
-anchor/crumb_jar/         on-chain program (separate workspace — own
-                            package.json/node_modules, not the frontend's)
+anchor/crumb_jar/         Jar Wars' on-chain program (separate workspace —
+                            own package.json/node_modules, not the frontend's)
   programs/crumb_jar/src/
     lib.rs                  instruction entrypoints
     state.rs                 CookieJar, Raid account layouts
@@ -60,6 +68,8 @@ anchor/crumb_jar/         on-chain program (separate workspace — own
     constants.rs, error.rs
   tests/crumb_jar.ts         integration tests (mint, accrual, raid, leaderboard)
 ```
+
+Wallet connection, the toast system, and the header are shared across all games. A new game gets its own route under `src/app/games/<slug>/` and its own Anchor program under `anchor/<slug>/`, independent of Jar Wars' on-chain state.
 
 ## How it works
 

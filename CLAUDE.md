@@ -1,23 +1,34 @@
-# Crumbs — Cookie Chain Hackathon Game
+# Crumbs — Cookie Chain Hackathon cApp
 
-See docs/GAME_DESIGN.md for the full game design.
+Crumbs is a hub for on-chain games on Cookie Chain, submitted to Cookie Chain's
+"Build a cApp" hackathon. Wallet connection, the toast/transaction-status
+system, and the header are shared across all games. Each game gets its own
+route under `src/app/games/<slug>/` and, since games don't share on-chain
+state, its own Anchor program under `anchor/<slug>/`.
 
-## Stack
-- Next.js 14+, TypeScript, Tailwind CSS
-- @solana/web3.js, @solana/wallet-adapter-react (Nightly wallet support required)
-- Anchor framework for on-chain programs
-- Cookie Chain RPC: https://rpc.cookiescan.io
-- $CRUMB token: SPL Token-2022
-- Jar/Recipe NFTs: Metaplex
+## Games
 
-## Current build order
+### Jar Wars (`/games/jar-wars`, `anchor/crumb_jar/`)
+See GAME_DESIGN.md for the full game design.
+
+Stack: @solana/web3.js, @solana/wallet-adapter-react (Nightly required),
+Anchor. $CRUMB token is currently a plain u64 on the jar account, not yet
+minted as SPL Token-2022 — see GAME_DESIGN.md's stack section for the
+originally-planned token/NFT layer, which remains a stretch goal.
+
+Build order (complete):
 1. Wallet connect + jar minting
 2. Passive crumb accrual + claim transaction
 3. Raid mechanic (commit-reveal)
-4. Leaderboard (Cookie DAS API)
+4. Leaderboard
 5. Transaction status UI + error handling
 
-## Rules
+### Future games
+None yet — the hub at `/` has placeholder cards. Add a game by suggesting it;
+each new game follows the same shared-infra, own-program pattern as Jar Wars.
+
+## Platform-wide rules
+- Cookie Chain RPC: https://rpc.cookiescan.io — **mainnet only, no faucet/testnet/devnet.** Every transaction costs real $COOK.
 - Every core game action must be a real on-chain transaction — no mocked/fake calls
 - Nightly wallet must work
 - Always show clear pending/confirmed/failed transaction states
