@@ -1,21 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import { useRaid } from "@/hooks/useRaid";
 
 export default function RaidPanel({
   onJarChanged,
+  target,
+  onTargetChange,
 }: {
   onJarChanged?: () => Promise<void>;
+  target: string;
+  onTargetChange: (value: string) => void;
 }) {
-  const [target, setTarget] = useState("");
   const { raid, canReveal, outcome, status, error, commitRaid, revealRaid } =
     useRaid(onJarChanged);
 
   const busy = status === "pending" || status === "confirming";
 
   return (
-    <div className="flex w-full flex-col gap-4 rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+    <div
+      id="raid-panel"
+      className="flex w-full flex-col gap-4 rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8"
+    >
       <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
         <span aria-hidden>⚔️</span> Raid a jar
       </h2>
@@ -49,9 +54,16 @@ export default function RaidPanel({
         </>
       ) : (
         <>
+          <p className="text-sm text-muted">
+            Pick a rival from the leaderboard (click <strong>⚔️ Raid</strong>{" "}
+            next to their name to fill this in), or paste their wallet
+            address directly. Raiding costs 10 crumbs upfront: win it back
+            plus a cut of their jar, or lose it — the outcome is settled in a
+            second step below, so nobody can know it in advance.
+          </p>
           <input
             value={target}
-            onChange={(event) => setTarget(event.target.value)}
+            onChange={(event) => onTargetChange(event.target.value)}
             placeholder="Target wallet address"
             spellCheck={false}
             className="h-12 w-full rounded-full border border-border bg-background px-5 font-mono text-sm outline-none transition-colors focus:border-primary"

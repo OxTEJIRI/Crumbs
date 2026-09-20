@@ -8,7 +8,11 @@ const truncate = (address: string) =>
 
 const RANK_MEDALS: Record<number, string> = { 0: "🥇", 1: "🥈", 2: "🥉" };
 
-export default function Leaderboard() {
+export default function Leaderboard({
+  onRaid,
+}: {
+  onRaid?: (address: string) => void;
+}) {
   const { publicKey } = useWallet();
   const { entries, loading, error } = useLeaderboard();
 
@@ -57,6 +61,15 @@ export default function Leaderboard() {
                 <span className="w-20 shrink-0 text-right font-mono tabular-nums">
                   {entry.crumbs.toLocaleString()}
                 </span>
+                {!isYou && onRaid && (
+                  <button
+                    onClick={() => onRaid(entry.owner.toString())}
+                    className="shrink-0 rounded-full bg-danger/10 px-2.5 py-1 text-xs font-medium text-danger transition-colors hover:bg-danger/20"
+                    title={`Raid ${truncate(entry.owner.toString())}`}
+                  >
+                    ⚔️ Raid
+                  </button>
+                )}
               </li>
             );
           })}

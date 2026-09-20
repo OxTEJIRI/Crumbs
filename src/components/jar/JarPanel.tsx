@@ -4,7 +4,13 @@ import { useCookieJar, useLiveCrumbs } from "@/hooks/useCookieJar";
 import JarVisual from "./JarVisual";
 import RaidPanel from "./RaidPanel";
 
-export default function JarPanel() {
+export default function JarPanel({
+  raidTarget,
+  onRaidTargetChange,
+}: {
+  raidTarget: string;
+  onRaidTargetChange: (value: string) => void;
+}) {
   const { jar, loading, status, error, mintJar, claimCrumbs, refresh } =
     useCookieJar();
   const { banked, pending, total } = useLiveCrumbs(jar);
@@ -30,6 +36,12 @@ export default function JarPanel() {
                 </span>
               </div>
             </div>
+
+            <p className="w-full text-sm text-muted">
+              Your jar earns crumbs automatically, every second, whether
+              you&apos;re here or not — claiming just banks what&apos;s
+              piled up so far into your permanent balance.
+            </p>
 
             <dl className="grid w-full grid-cols-2 gap-x-4 gap-y-3 rounded-2xl bg-background/60 p-4 text-sm">
               <dt className="text-muted">In the jar</dt>
@@ -83,7 +95,13 @@ export default function JarPanel() {
         )}
       </div>
 
-      {jar && <RaidPanel onJarChanged={refresh} />}
+      {jar && (
+        <RaidPanel
+          onJarChanged={refresh}
+          target={raidTarget}
+          onTargetChange={onRaidTargetChange}
+        />
+      )}
     </div>
   );
 }
