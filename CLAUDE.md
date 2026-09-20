@@ -39,8 +39,33 @@ verifying the move sequence) is out of scope for now.
 Status: on-chain program complete and tested against a local validator.
 Not yet deployed to Cookie Chain or played through a real wallet.
 
+### Nibble (`/games/nibble`, `anchor/crumb_jar/programs/nibble/`)
+Single shared cookie, PvP, played with real COOK rather than an in-game
+token. One baker funds the pot; anyone pays to bite; the bite that takes
+the last of the cookie wins what's left. Heat rises with every bite and
+with neglect — max heat burns the cookie and the whole pot goes to the
+jar. Only the baker can glaze (cool it) or pull out early.
+
+The whole game is one singleton PDA (`[b"oven"]`), recycled per batch.
+The pot is the account's own lamport balance above rent, never a tracked
+field, so it can't drift from reality. Every instruction calls
+`apply_idle_heat_and_maybe_burn` first, so an overdue burn always lands
+before anything else — including a baker trying to pull out from under it.
+
+Economy math lives in `math.rs` as pure integer functions (u128
+intermediates, no floats) and is mirrored in `src/lib/solana/nibble.ts`
+so the UI can preview a bite before signing. The frontend reads every
+constant from the IDL rather than hardcoding, so it can't drift from what
+the chain enforces.
+
+Status: program complete, 9 math unit tests + 13 integration tests passing
+against a local validator. **Not deployed.** `JAR_ADDRESS` in
+`constants.rs` is still a placeholder pointing at our own deploy wallet —
+it must be replaced with Cookie Chain's real community treasury before any
+deploy, since burns and fee cuts send real COOK there.
+
 ### Future games
-None yet beyond these two. Add a game by suggesting it; each new game
+None yet beyond these three. Add a game by suggesting it; each new game
 follows the same shared-infra, own-program pattern.
 
 ## Platform-wide rules

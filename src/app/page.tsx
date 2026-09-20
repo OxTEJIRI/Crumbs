@@ -32,6 +32,12 @@ export default function Home() {
             href="/games/cookie-crush"
           />
           <GameCard
+            emoji="🍪"
+            title="Nibble"
+            description="One cookie, one pot, everyone bites. Bake it, or pay to take a bite — the bite that finishes it takes what's left."
+            href="/games/nibble"
+          />
+          <GameCard
             emoji="✨"
             title="Got an idea?"
             description="Suggest the next game to add to Crumbs."

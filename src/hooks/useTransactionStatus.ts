@@ -14,7 +14,7 @@ export function describeError(err: unknown): string {
     return "You rejected the signature request.";
   }
   if (/insufficient (lamports|funds)/i.test(message)) {
-    return "Not enough SOL to pay for this transaction.";
+    return "Not enough COOK to pay for this transaction.";
   }
   if (/already in use/i.test(message)) {
     return "You already have one of these open.";
@@ -45,6 +45,30 @@ export function describeError(err: unknown): string {
   }
   if (/ScoreImplausible/.test(message)) {
     return "That score isn't plausible for how long you played.";
+  }
+  if (/CookieAlreadyLive/.test(message)) {
+    return "There's already a cookie in the oven. Wait for this batch to end.";
+  }
+  if (/CookieNotLive/.test(message)) {
+    return "That batch is already over. Refresh to see the new oven.";
+  }
+  if (/BakeTooSmall/.test(message)) {
+    return "That's below the minimum bake.";
+  }
+  if (/BidTooSmall/.test(message)) {
+    return "That bite is below the minimum bid.";
+  }
+  if (/BakerLocked/.test(message)) {
+    return "You just baked this cookie — wait a few slots before biting it.";
+  }
+  if (/NotTheBaker/.test(message)) {
+    return "Only the baker of this batch can do that.";
+  }
+  if (/NotIdleYet/.test(message)) {
+    return "The oven isn't idle yet — there's nothing to stoke.";
+  }
+  if (/GlazeCostExceeded/.test(message)) {
+    return "The cookie heated up before that landed, so glazing got more expensive. Try again.";
   }
   return message;
 }

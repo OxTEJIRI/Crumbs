@@ -1,0 +1,559 @@
+{
+  "address": "96A38RPbCfpcv8o5ZCbTSq8Q1kT6DBujHygJMiWLDbWj",
+  "metadata": {
+    "name": "nibble_program",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "bake",
+      "discriminator": [
+        176,
+        125,
+        232,
+        117,
+        208,
+        89,
+        202,
+        19
+      ],
+      "accounts": [
+        {
+          "name": "baker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cookie",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  118,
+                  101,
+                  110
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "bake_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "crank_heat",
+      "discriminator": [
+        134,
+        168,
+        155,
+        100,
+        157,
+        249,
+        190,
+        216
+      ],
+      "accounts": [
+        {
+          "name": "cranker",
+          "signer": true
+        },
+        {
+          "name": "cookie",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  118,
+                  101,
+                  110
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "jar",
+          "docs": [
+            "pushes heat to the cap."
+          ],
+          "writable": true,
+          "address": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "glaze",
+      "discriminator": [
+        136,
+        188,
+        8,
+        163,
+        8,
+        92,
+        148,
+        141
+      ],
+      "accounts": [
+        {
+          "name": "baker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cookie",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  118,
+                  101,
+                  110
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "jar",
+          "docs": [
+            "idle check turns up a burn."
+          ],
+          "writable": true,
+          "address": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "max_cost",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "nibble",
+      "discriminator": [
+        154,
+        250,
+        55,
+        219,
+        0,
+        148,
+        47,
+        93
+      ],
+      "accounts": [
+        {
+          "name": "nibbler",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cookie",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  118,
+                  101,
+                  110
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "jar",
+          "docs": [
+            "credited, never read or deserialized."
+          ],
+          "writable": true,
+          "address": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "bid",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "pull",
+      "discriminator": [
+        78,
+        119,
+        161,
+        115,
+        9,
+        167,
+        75,
+        125
+      ],
+      "accounts": [
+        {
+          "name": "baker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cookie",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  118,
+                  101,
+                  110
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "jar",
+          "docs": [
+            "whole pot if this call's idle check finds it already overdue to burn."
+          ],
+          "writable": true,
+          "address": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Cookie",
+      "discriminator": [
+        156,
+        103,
+        85,
+        170,
+        18,
+        27,
+        127,
+        44
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "CookieAlreadyLive",
+      "msg": "A cookie is already live — bake again once it's eaten, burned, or pulled"
+    },
+    {
+      "code": 6001,
+      "name": "CookieNotLive",
+      "msg": "There's no live cookie to act on right now"
+    },
+    {
+      "code": 6002,
+      "name": "BakeTooSmall",
+      "msg": "Bake amount is below the minimum"
+    },
+    {
+      "code": 6003,
+      "name": "BidTooSmall",
+      "msg": "Bid is below the minimum nibble"
+    },
+    {
+      "code": 6004,
+      "name": "BakerLocked",
+      "msg": "The baker can't nibble their own cookie yet"
+    },
+    {
+      "code": 6005,
+      "name": "NotTheBaker",
+      "msg": "Only the baker can do that"
+    },
+    {
+      "code": 6006,
+      "name": "NotIdleYet",
+      "msg": "The cookie hasn't been idle long enough to crank"
+    },
+    {
+      "code": 6007,
+      "name": "GlazeCostExceeded",
+      "msg": "Glaze would cost more than your specified maximum"
+    }
+  ],
+  "types": [
+    {
+      "name": "Cookie",
+      "docs": [
+        "A singleton, recycled across every batch — the whole game is this one",
+        "account. `bake` resets it; `nibble`/`glaze`/`pull`/`crank_heat` mutate it",
+        "while it's Live."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "baker",
+            "type": "pubkey"
+          },
+          {
+            "name": "batch_id",
+            "type": "u64"
+          },
+          {
+            "name": "hp",
+            "type": "u32"
+          },
+          {
+            "name": "heat",
+            "type": "u32"
+          },
+          {
+            "name": "created_slot",
+            "type": "u64"
+          },
+          {
+            "name": "last_action_slot",
+            "type": "u64"
+          },
+          {
+            "name": "nibble_count",
+            "type": "u32"
+          },
+          {
+            "name": "last_nibbler",
+            "type": "pubkey"
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "CookieState"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CookieState",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Empty"
+          },
+          {
+            "name": "Live"
+          },
+          {
+            "name": "Eaten"
+          },
+          {
+            "name": "Burned"
+          },
+          {
+            "name": "Pulled"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "BAKER_LOCK_SLOTS",
+      "docs": [
+        "Baker cannot nibble their own cookie until this many slots after bake —",
+        "stops bake-and-self-eat in the same breath. Self-nibbling afterward is",
+        "harmless: PAYOUT_BPS < 10_000 means every bite is net-negative for",
+        "whoever pays for it, self included, so there's nothing to exploit."
+      ],
+      "type": "u64",
+      "value": "8"
+    },
+    {
+      "name": "BPS_DENOMINATOR",
+      "docs": [
+        "Denominator for every basis-point percentage below (payout share, jar",
+        "share, damage range). Numerically the same as MAX_HP/MAX_HEAT, but kept",
+        "as its own name since it means something different: \"out of 100%,\" not",
+        "\"out of a full cookie.\""
+      ],
+      "type": "u32",
+      "value": "10000"
+    },
+    {
+      "name": "DAMAGE_K",
+      "type": "u64",
+      "value": "5000"
+    },
+    {
+      "name": "DAMAGE_MAX_BPS",
+      "type": "u32",
+      "value": "3000"
+    },
+    {
+      "name": "DAMAGE_MIN_BPS",
+      "docs": [
+        "Damage curve: damage = D_MIN + (D_MAX - D_MIN) * bid / (bid + K * hp).",
+        "Small bids chip; huge bids do more but with diminishing returns, so no",
+        "single transaction can one-shot a healthy cookie. K is tuned so a",
+        "~0.05 COOK bid against a full-health cookie lands near the curve's",
+        "midpoint — see `damage_bps` for the exact arithmetic."
+      ],
+      "type": "u32",
+      "value": "300"
+    },
+    {
+      "name": "GLAZE_BASE_COST_LAMPORTS",
+      "type": "u64",
+      "value": "5000000"
+    },
+    {
+      "name": "GLAZE_HEAT_DIVISOR",
+      "type": "u64",
+      "value": "20"
+    },
+    {
+      "name": "GLAZE_HEAT_REDUCTION",
+      "docs": [
+        "Glaze always removes this much heat and restores this much HP, for a",
+        "cost that grows with heat squared — cheap early, a panic spend late."
+      ],
+      "type": "u32",
+      "value": "2000"
+    },
+    {
+      "name": "GLAZE_HP_RESTORE",
+      "type": "u32",
+      "value": "500"
+    },
+    {
+      "name": "HEAT_BASE",
+      "docs": [
+        "Heat added per nibble: a flat cost plus a share proportional to the",
+        "damage just dealt, so aggressive bites heat the oven faster than gentle",
+        "ones."
+      ],
+      "type": "u32",
+      "value": "100"
+    },
+    {
+      "name": "HEAT_SCALE",
+      "type": "u32",
+      "value": "2000"
+    },
+    {
+      "name": "IDLE_HEAT",
+      "docs": [
+        "Flat heat added per idle window left unattended."
+      ],
+      "type": "u32",
+      "value": "2500"
+    },
+    {
+      "name": "IDLE_SLOTS",
+      "docs": [
+        "How long the cookie can sit untouched before it starts cooking on its own."
+      ],
+      "type": "u64",
+      "value": "15"
+    },
+    {
+      "name": "JAR_ADDRESS",
+      "docs": [
+        "TODO(before mainnet deploy): replace with Cookie Chain's actual",
+        "community treasury address. This is our own deploy wallet, a safe",
+        "placeholder for local testing only — burns and fee cuts must not go",
+        "anywhere real until the genuine address is confirmed."
+      ],
+      "type": "pubkey",
+      "value": "7261MGftUdiVdfb4dJpPkL2bize2aRcw3ehpSm9No4Uj"
+    },
+    {
+      "name": "JAR_SHARE_BPS",
+      "docs": [
+        "Protocol cut on every ending (eaten or pulled) and on the full pot when a",
+        "cookie burns from neglect."
+      ],
+      "type": "u32",
+      "value": "200"
+    },
+    {
+      "name": "MAX_HEAT",
+      "type": "u32",
+      "value": "10000"
+    },
+    {
+      "name": "MAX_HP",
+      "docs": [
+        "HP and heat are tracked in basis points (0–10_000) rather than a",
+        "percentage, so integer math never needs to round a fraction."
+      ],
+      "type": "u32",
+      "value": "10000"
+    },
+    {
+      "name": "MIN_BAKE_LAMPORTS",
+      "type": "u64",
+      "value": "50000000"
+    },
+    {
+      "name": "MIN_NIBBLE_LAMPORTS",
+      "type": "u64",
+      "value": "1000000"
+    },
+    {
+      "name": "OVEN_SEED",
+      "type": "bytes",
+      "value": "[111, 118, 101, 110]"
+    },
+    {
+      "name": "PAYOUT_SHARE_BPS",
+      "docs": [
+        "Share of the (post-bid) pot paid to the nibbler, proportional to the",
+        "damage fraction they just dealt. The rest stays in the pot for the next",
+        "bite, the eventual winner, or the jar. Below 10_000 so nibbling — even",
+        "nibbling your own cookie after the lock — is never a free lunch."
+      ],
+      "type": "u32",
+      "value": "6000"
+    }
+  ]
+}
