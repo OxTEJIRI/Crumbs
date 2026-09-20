@@ -2,6 +2,11 @@
 
 **Bake. Hoard. Raid. Survive the Jar Wars.**
 
+**Live app:** https://crumbs-liard.vercel.app
+**On-chain program:** [`85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr`](https://cookiescan.io/account/85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr) on Cookie Chain
+
+Built for Cookie Chain's "Build a cApp" hackathon.
+
 Crumbs is an on-chain idle-strategy game on Cookie Chain. Every player owns a **Cookie Jar** — an on-chain account that passively generates `$CRUMB` over time. Claim your crumbs, raid other players' jars to steal theirs, and climb the leaderboard. Every meaningful action is a real transaction; nothing is mocked.
 
 See [GAME_DESIGN.md](GAME_DESIGN.md) for the full design and [CLAUDE.md](CLAUDE.md) for the build order this repo follows.
