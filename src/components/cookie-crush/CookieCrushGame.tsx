@@ -33,9 +33,11 @@ export default function CookieCrushGame() {
 
   useEffect(() => {
     if (!roundActive) return;
+    // Re-runs on every tick (secondsLeft in the deps), not just when
+    // roundActive itself flips — otherwise the timer fires once and stalls.
     const id = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(id);
-  }, [roundActive]);
+  }, [roundActive, secondsLeft]);
 
   const handleStart = useCallback(async () => {
     const ok = await startLevel();
