@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useLuckySlice } from "@/hooks/useLuckySlice";
+import { BPS_DENOMINATOR } from "@/lib/solana/luckySlice";
 import CrumbMascot, { type MascotMood } from "./CrumbMascot";
 import KnifeCookieScene from "./KnifeCookieScene";
 import Scale from "./Scale";
@@ -65,7 +66,7 @@ export default function LuckySliceGame() {
 
           {lastResult ? (
             <div className="flex flex-col items-center gap-3">
-              <Scale actualBps={lastResult.actualBps} />
+              <Scale pieceBps={BPS_DENOMINATOR - lastResult.actualBps} />
               <div className="flex flex-col items-center gap-1">
                 <span className="text-sm text-muted">Accuracy</span>
                 <span className="font-display text-3xl font-semibold tabular-nums">

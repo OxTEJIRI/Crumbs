@@ -8,7 +8,7 @@
 export const BPS_DENOMINATOR = 10_000;
 
 /** One full up-and-down sweep. */
-export const CYCLE_MS = 1600;
+export const CYCLE_MS = 4000;
 
 /**
  * Position along the cookie at a given moment, as a 0..1 triangle wave: 0 at

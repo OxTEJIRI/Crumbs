@@ -1,9 +1,10 @@
 interface ScaleProps {
-  actualBps: number;
+  /** Size of the piece that fell — everything below the cut, not the raw tap position. */
+  pieceBps: number;
 }
 
 /** The severed piece's weigh-in, shown once a cut has landed. */
-export default function Scale({ actualBps }: ScaleProps) {
+export default function Scale({ pieceBps }: ScaleProps) {
   return (
     <div className="flex flex-col items-center gap-1">
       <svg viewBox="0 0 100 60" className="h-14 w-24" role="img" aria-label="Scale">
@@ -26,7 +27,7 @@ export default function Scale({ actualBps }: ScaleProps) {
           textAnchor="middle"
           className="fill-foreground font-mono text-[8px] font-semibold"
         >
-          {(actualBps / 100).toFixed(1)}%
+          {(pieceBps / 100).toFixed(1)}%
         </text>
       </svg>
     </div>
