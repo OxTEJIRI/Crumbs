@@ -13,6 +13,13 @@ export function describeError(err: unknown): string {
   if (/user rejected|rejected the request|User denied/i.test(message)) {
     return "You rejected the signature request.";
   }
+  // Wallets that broadcast transactions themselves (rather than just
+  // signing) use their own configured network, not necessarily this app's —
+  // if that's set to Solana instead of Cookie Chain, the send fails with
+  // exactly this generic message and no further detail.
+  if (/^failed to send transaction/i.test(message)) {
+    return "Failed to send the transaction. If your wallet is set to a different network than Cookie Chain, switch it to Cookie Chain (RPC https://rpc.cookiescan.io) and try again.";
+  }
   if (/insufficient (lamports|funds)/i.test(message)) {
     return "Not enough COOK to pay for this transaction.";
   }
@@ -113,6 +120,15 @@ export function useTransactionStatus() {
         await onConfirmed?.(signature);
         return true;
       } catch (err) {
+        // Wallet-adapter's own error often wraps a more specific cause the
+        // extension threw (e.g. Nightly's injected script) that the
+        // dev overlay truncates by default — log it separately so it's
+        // actually visible.
+        console.error(
+          "Transaction failed:",
+          err,
+          (err as { error?: unknown })?.error
+        );
         setStatus("failed");
         toasts.update(toastId, {
           status: "failed",

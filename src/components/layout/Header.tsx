@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
+import NetworkSetupNote from "@/components/wallet/NetworkSetupNote";
 
 export default function Header() {
   return (
@@ -14,7 +15,10 @@ export default function Header() {
           </span>
         </Link>
 
-        <WalletConnectButton />
+        <div className="flex items-center gap-3">
+          <NetworkSetupNote />
+          <WalletConnectButton />
+        </div>
       </div>
     </header>
   );
