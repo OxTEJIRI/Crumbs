@@ -83,12 +83,12 @@ in the same slot never hash to the same input) is enough. Leaderboard
 ranks by best cut ever landed, read via `getProgramAccounts` like the
 other two leaderboards.
 
-Program built and its keypair generated
-(`A666hnXcDdB9y8Vz2anJTLQg8R7tivBLEXTC4PBQaFoV`), 3 integration tests
+Deployed to Cookie Chain at
+`A666hnXcDdB9y8Vz2anJTLQg8R7tivBLEXTC4PBQaFoV`. 3 integration tests
 passing against a local validator, including a check that 15 slices
 produce a genuinely varied spread of outcomes (parsed from the program's
 own log line, since the account only ever exposes the running best).
-**Not yet deployed to Cookie Chain**, and the frontend is unverified in
+**Not yet played through a real wallet** — the frontend is unverified in
 a browser.
 
 ### Future games
