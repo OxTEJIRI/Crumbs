@@ -1,5 +1,7 @@
 import Header from "@/components/layout/Header";
 import GameCard from "@/components/hub/GameCard";
+import SuggestIdeaCard from "@/components/hub/SuggestIdeaCard";
+import ContributeCard from "@/components/hub/ContributeCard";
 import JarIcon from "@/components/jar/JarIcon";
 import CrumbMascot from "@/components/lucky-slice/CrumbMascot";
 
@@ -45,11 +47,8 @@ export default function Home() {
             description="A random target, a swinging knife, one perfectly-timed tap. Cut as close to the target as you can — free to play, no stakes."
             href="/games/lucky-slice"
           />
-          <GameCard
-            emoji="✨"
-            title="Got an idea?"
-            description="Suggest the next game to add to Crumbs."
-          />
+          <SuggestIdeaCard />
+          <ContributeCard />
         </div>
       </main>
     </div>
