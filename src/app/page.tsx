@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header";
 import GameCard from "@/components/hub/GameCard";
 import JarIcon from "@/components/jar/JarIcon";
+import CrumbMascot from "@/components/lucky-slice/CrumbMascot";
 
 export default function Home() {
   return (
@@ -37,6 +38,12 @@ export default function Home() {
             title="Nibble"
             description="One cookie, one pot, everyone bites. Bake it, or pay to take a bite — the bite that finishes it takes what's left."
             href="/games/nibble"
+          />
+          <GameCard
+            icon={<CrumbMascot mood="happy" className="h-10 w-10" />}
+            title="Lucky Slice"
+            description="One tap, one slice, one real transaction. Land the biggest cut you can and climb the leaderboard — free to play, no stakes."
+            href="/games/lucky-slice"
           />
           <GameCard
             emoji="✨"

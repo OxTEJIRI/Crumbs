@@ -65,13 +65,34 @@ rent-exempt minimum, and only ever credited — never a signer.
 Status: deployed to Cookie Chain at
 `96A38RPbCfpcv8o5ZCbTSq8Q1kT6DBujHygJMiWLDbWj`. 9 math unit tests + 13
 integration tests passing against a local validator (including a fresh
-chain where the treasury account does not exist yet). **Not yet played
-through a real wallet** — the connected-wallet UI is unverified; a
-minimum-stake smoke test (bake → bite → glaze → pull) should happen before
-linking this anywhere public.
+chain where the treasury account does not exist yet). Bake and the
+neglect-burn path are confirmed live with real COOK and a real Nightly
+wallet — a bake landed, was left idle, and the burn sent the full pot to
+the treasury exactly as `math.rs` predicts. **Bite, glaze, and pull are
+still only integration-test-covered**, not yet exercised through the UI
+with a real wallet (bite in particular needs a second wallet, since
+biting your own freshly-baked cookie is locked out for 8 slots).
+
+### Lucky Slice (`/games/lucky-slice`, `anchor/crumb_jar/programs/lucky_slice/`)
+Free, no-stakes chance game: tap Slice, one on-chain transaction lands,
+and it returns a random cut size (0–100%, tracked as basis points). No
+commit-reveal — unlike the raid, there's nothing at stake for anyone to
+game, so a single instruction mixing the SlotHashes sysvar with the
+player's own key and a running per-player attempt count (so two slices
+in the same slot never hash to the same input) is enough. Leaderboard
+ranks by best cut ever landed, read via `getProgramAccounts` like the
+other two leaderboards.
+
+Program built and its keypair generated
+(`A666hnXcDdB9y8Vz2anJTLQg8R7tivBLEXTC4PBQaFoV`), 3 integration tests
+passing against a local validator, including a check that 15 slices
+produce a genuinely varied spread of outcomes (parsed from the program's
+own log line, since the account only ever exposes the running best).
+**Not yet deployed to Cookie Chain**, and the frontend is unverified in
+a browser.
 
 ### Future games
-None yet beyond these three. Add a game by suggesting it; each new game
+None yet beyond these four. Add a game by suggesting it; each new game
 follows the same shared-infra, own-program pattern.
 
 ## Platform-wide rules
