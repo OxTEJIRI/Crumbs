@@ -15,7 +15,7 @@ export default function LuckySliceLeaderboard() {
   return (
     <div className="flex w-full flex-col gap-4 rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
       <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-        <span aria-hidden>🏆</span> Luckiest cuts
+        <span aria-hidden>🏆</span> Most accurate cuts
       </h2>
 
       {loading && entries.length === 0 ? (
@@ -25,7 +25,7 @@ export default function LuckySliceLeaderboard() {
           ))}
         </ol>
       ) : entries.length === 0 ? (
-        <p className="text-sm text-muted">No slices yet. Be the first to try.</p>
+        <p className="text-sm text-muted">No rounds played yet. Be the first to try.</p>
       ) : (
         <ol className="flex flex-col gap-1.5">
           {entries.map((entry, index) => {
@@ -51,7 +51,7 @@ export default function LuckySliceLeaderboard() {
                   {entry.attempts} tries
                 </span>
                 <span className="w-16 shrink-0 text-right font-mono tabular-nums">
-                  {(entry.bestCutBps / 100).toFixed(2)}%
+                  {(entry.bestAccuracyBps / 100).toFixed(2)}%
                 </span>
               </li>
             );

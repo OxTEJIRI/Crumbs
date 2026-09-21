@@ -7,7 +7,7 @@ import { describeError } from "./useTransactionStatus";
 
 export interface LuckySliceLeaderboardEntry {
   player: PublicKey;
-  bestCutBps: number;
+  bestAccuracyBps: number;
   attempts: number;
 }
 
@@ -25,7 +25,7 @@ export function useLuckySliceLeaderboard(limit = 10) {
     const accounts = await program.account.sliceStats.all();
     return accounts.map((entry) => ({
       player: entry.account.player,
-      bestCutBps: entry.account.bestCutBps,
+      bestAccuracyBps: entry.account.bestAccuracyBps,
       attempts: entry.account.attempts.toNumber(),
     }));
   }, [program]);
@@ -58,7 +58,7 @@ export function useLuckySliceLeaderboard(limit = 10) {
   }, [fetchEntries]);
 
   const ranked = useMemo(
-    () => [...entries].sort((a, b) => b.bestCutBps - a.bestCutBps).slice(0, limit),
+    () => [...entries].sort((a, b) => b.bestAccuracyBps - a.bestAccuracyBps).slice(0, limit),
     [entries, limit]
   );
 

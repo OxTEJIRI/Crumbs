@@ -42,7 +42,7 @@ export default function Home() {
           <GameCard
             icon={<CrumbMascot mood="happy" className="h-10 w-10" />}
             title="Lucky Slice"
-            description="One tap, one slice, one real transaction. Land the biggest cut you can and climb the leaderboard — free to play, no stakes."
+            description="A random target, a swinging knife, one perfectly-timed tap. Cut as close to the target as you can — free to play, no stakes."
             href="/games/lucky-slice"
           />
           <GameCard

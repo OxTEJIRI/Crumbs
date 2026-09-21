@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
 use solana_sha256_hasher::hashv;
 
-use crate::{constants::*, error::LuckySliceError, state::SliceStats};
+use crate::{constants::*, error::LuckySliceError, state::{Round, SliceStats}};
 
 #[derive(Accounts)]
-pub struct Slice<'info> {
+pub struct StartRound<'info> {
     #[account(mut)]
     pub player: Signer<'info>,
     #[account(
@@ -15,6 +15,14 @@ pub struct Slice<'info> {
         bump
     )]
     pub stats: Account<'info, SliceStats>,
+    #[account(
+        init,
+        payer = player,
+        space = 8 + Round::INIT_SPACE,
+        seeds = [ROUND_SEED, player.key().as_ref()],
+        bump
+    )]
+    pub round: Account<'info, Round>,
     /// CHECK: address-checked against the SlotHashes sysvar and read as raw
     /// bytes, because the sysvar is far too large to deserialize on-chain.
     #[account(address = SLOT_HASHES_ID)]
@@ -37,13 +45,11 @@ fn most_recent_slot_hash(data: &[u8]) -> Result<(u64, [u8; 32])> {
     Ok((slot, hash))
 }
 
-/// There's nothing at stake here, so — unlike the raid's commit-reveal —
-/// this is a single transaction. The slot hash alone would let a player
-/// simulate ahead and only broadcast a favorable outcome for the *next*
-/// slot, so the player's own key and their running attempt count are mixed
-/// in too: neither is something the caller can change to search for a
-/// better roll without actually spending a transaction on each attempt.
-pub fn handle_slice(ctx: Context<Slice>) -> Result<()> {
+/// The target is rolled on-chain, not chosen by the client, so a player
+/// can't simply keep re-rolling until an easy target shows up without it
+/// costing a real transaction each time. The actual cut is up to the
+/// player's own timing and is recorded later by submit_cut.
+pub fn handle_start_round(ctx: Context<StartRound>) -> Result<()> {
     let clock = Clock::get()?;
     let (slot, slot_hash) = most_recent_slot_hash(&ctx.accounts.slot_hashes.data.borrow())?;
 
@@ -63,18 +69,17 @@ pub fn handle_slice(ctx: Context<Slice>) -> Result<()> {
             .try_into()
             .unwrap(),
     );
-    let cut_bps = (roll % (BPS_DENOMINATOR as u64 + 1)) as u32;
+    let target_bps = (roll % (BPS_DENOMINATOR as u64 + 1)) as u32;
 
-    stats.attempts = stats.attempts.saturating_add(1);
-    stats.last_slot = clock.slot;
-    if cut_bps > stats.best_cut_bps {
-        stats.best_cut_bps = cut_bps;
-    }
+    let round = &mut ctx.accounts.round;
+    round.player = stats.player;
+    round.target_bps = target_bps;
+    round.start_slot = clock.slot;
+    round.bump = ctx.bumps.round;
 
     msg!(
-        "Sliced for {}bps (best so far {}bps), sampled from slot {}",
-        cut_bps,
-        stats.best_cut_bps,
+        "Round started, target {}bps, sampled from slot {}",
+        target_bps,
         slot
     );
     Ok(())

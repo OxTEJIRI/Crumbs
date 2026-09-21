@@ -8,16 +8,16 @@
   },
   "instructions": [
     {
-      "name": "slice",
+      "name": "start_round",
       "discriminator": [
-        236,
-        98,
+        144,
+        144,
+        43,
         7,
-        45,
-        223,
-        178,
-        212,
-        213
+        193,
+        42,
+        217,
+        215
       ],
       "accounts": [
         {
@@ -48,6 +48,28 @@
           }
         },
         {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "player"
+              }
+            ]
+          }
+        },
+        {
           "name": "slot_hashes",
           "docs": [
             "bytes, because the sysvar is far too large to deserialize on-chain."
@@ -60,9 +82,92 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "submit_cut",
+      "discriminator": [
+        50,
+        57,
+        156,
+        53,
+        209,
+        150,
+        254,
+        38
+      ],
+      "accounts": [
+        {
+          "name": "player",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "player"
+              }
+            ]
+          }
+        },
+        {
+          "name": "stats",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  108,
+                  105,
+                  99,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "player"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "actual_bps",
+          "type": "u32"
+        }
+      ]
     }
   ],
   "accounts": [
+    {
+      "name": "Round",
+      "discriminator": [
+        87,
+        127,
+        165,
+        51,
+        73,
+        78,
+        116,
+        174
+      ]
+    },
     {
       "name": "SliceStats",
       "discriminator": [
@@ -82,16 +187,25 @@
       "code": 6000,
       "name": "SlotHashUnavailable",
       "msg": "The SlotHashes sysvar has no entries yet."
+    },
+    {
+      "code": 6001,
+      "name": "CutOutOfRange",
+      "msg": "Cut size must be between 0 and 10000 basis points."
+    },
+    {
+      "code": 6002,
+      "name": "SubmittedTooSoon",
+      "msg": "Submitted too soon after starting the round."
     }
   ],
   "types": [
     {
-      "name": "SliceStats",
+      "name": "Round",
       "docs": [
-        "One per player, created on their first slice and reused for every one",
-        "after. `best_cut_bps` is the leaderboard stat; `attempts` doubles as the",
-        "randomness nonce, so two slices in the same slot never hash to the same",
-        "input."
+        "An in-progress round. Created by start_round (which also rolls the",
+        "target), closed by submit_cut, so a player can only have one open round",
+        "at a time."
       ],
       "type": {
         "kind": "struct",
@@ -101,7 +215,37 @@
             "type": "pubkey"
           },
           {
-            "name": "best_cut_bps",
+            "name": "target_bps",
+            "type": "u32"
+          },
+          {
+            "name": "start_slot",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SliceStats",
+      "docs": [
+        "One per player, created on their first round and reused for every one",
+        "after. `best_accuracy_bps` is the leaderboard stat: 10_000 means a",
+        "perfect cut, 0 means as far from the target as possible. `attempts`",
+        "doubles as the target's randomness nonce."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "player",
+            "type": "pubkey"
+          },
+          {
+            "name": "best_accuracy_bps",
             "type": "u32"
           },
           {
@@ -124,11 +268,28 @@
     {
       "name": "BPS_DENOMINATOR",
       "docs": [
-        "Cut size is tracked in basis points (0–10_000, i.e. 0%–100%) rather than",
-        "a percentage, so the on-chain math never needs to round a fraction."
+        "Cut size and accuracy are tracked in basis points (0–10_000, i.e.",
+        "0%–100%) rather than a percentage, so the on-chain math never needs to",
+        "round a fraction."
       ],
       "type": "u32",
       "value": "10000"
+    },
+    {
+      "name": "MIN_ROUND_SLOTS",
+      "docs": [
+        "The knife's timing is client-side gameplay the chain can't watch, the",
+        "same way Cookie Crush's board is — so, like Cookie Crush, this is a",
+        "loose plausibility floor, not real anti-cheat: submitting in the same",
+        "slot the round started would mean no actual tap happened in between."
+      ],
+      "type": "u64",
+      "value": "1"
+    },
+    {
+      "name": "ROUND_SEED",
+      "type": "bytes",
+      "value": "[114, 111, 117, 110, 100]"
     },
     {
       "name": "STATS_SEED",

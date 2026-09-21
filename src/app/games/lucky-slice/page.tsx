@@ -38,16 +38,16 @@ function Hero() {
           Lucky Slice
         </h1>
         <p className="max-w-md text-lg text-muted">
-          One tap, one slice, one real transaction. Every cut lands at a
-          random size — climb the leaderboard by landing the biggest one you
-          can.
+          A random target lands on the board, a knife swings over the
+          cookie — tap at the right moment to cut as close to it as you
+          can. Climb the leaderboard on precision, not luck.
         </p>
       </div>
       <WalletConnectButton />
       <p className="max-w-sm text-sm text-muted">
-        Free to play — no stakes, just bragging rights. Every slice is still
-        a real on-chain transaction, using Cookie Chain&apos;s own randomness
-        so nobody can rig their own roll.
+        Free to play — no stakes, just bragging rights. Your target comes
+        from a real on-chain transaction using Cookie Chain&apos;s own
+        randomness, so nobody can pick an easy one.
       </p>
     </div>
   );

@@ -74,22 +74,33 @@ with a real wallet (bite in particular needs a second wallet, since
 biting your own freshly-baked cookie is locked out for 8 slots).
 
 ### Lucky Slice (`/games/lucky-slice`, `anchor/crumb_jar/programs/lucky_slice/`)
-Free, no-stakes chance game: tap Slice, one on-chain transaction lands,
-and it returns a random cut size (0–100%, tracked as basis points). No
-commit-reveal — unlike the raid, there's nothing at stake for anyone to
-game, so a single instruction mixing the SlotHashes sysvar with the
-player's own key and a running per-player attempt count (so two slices
-in the same slot never hash to the same input) is enough. Leaderboard
-ranks by best cut ever landed, read via `getProgramAccounts` like the
-other two leaderboards.
+Free, no-stakes timing game. A cookie hangs on a track, a knife sweeps up
+and down it, and tapping at the right moment is the whole skill. Two
+on-chain checkpoints per round, mirroring Cookie Crush's session pattern:
+
+- `start_round` rolls the **target** on-chain (SlotHashes sysvar mixed with
+  the player's key and their running attempt count, so rounds in the same
+  slot never hash alike) and opens a `Round` PDA. The target comes from the
+  chain specifically so a player can't keep re-rolling for an easy one
+  without paying for a transaction each time.
+- `submit_cut(actual_bps)` closes the round and scores it:
+  `accuracy = 10_000 - |target - actual|`, keeping the running best.
+
+The knife's motion and the tap that stops it are pure client-side gameplay
+(`src/lib/luckySlice/knife.ts`, a constant-speed triangle wave so every
+point on the cookie is equally reachable — a sine's slow turnarounds would
+bias the ends). The chain can't watch an animation, so like Cookie Crush
+this is a loose plausibility floor, not real anti-cheat: `MIN_ROUND_SLOTS`
+only rejects a submit landing in the same slot the round started.
+
+Leaderboard ranks by best accuracy, read via `getProgramAccounts` like the
+other leaderboards.
 
 Deployed to Cookie Chain at
-`A666hnXcDdB9y8Vz2anJTLQg8R7tivBLEXTC4PBQaFoV`. 3 integration tests
-passing against a local validator, including a check that 15 slices
-produce a genuinely varied spread of outcomes (parsed from the program's
-own log line, since the account only ever exposes the running best).
-**Not yet played through a real wallet** — the frontend is unverified in
-a browser.
+`A666hnXcDdB9y8Vz2anJTLQg8R7tivBLEXTC4PBQaFoV` (upgraded in place from an
+earlier single-instruction chance-based version). 5 integration tests
+passing against a local validator. **Not yet played through a real
+wallet** — the frontend is unverified in a browser.
 
 ### Future games
 None yet beyond these four. Add a game by suggesting it; each new game

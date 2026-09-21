@@ -1,36 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useLuckySlice } from "@/hooks/useLuckySlice";
 import CrumbMascot, { type MascotMood } from "./CrumbMascot";
-import HangingCookie from "./HangingCookie";
+import KnifeCookieScene from "./KnifeCookieScene";
+import Scale from "./Scale";
 import LuckySliceLeaderboard from "./LuckySliceLeaderboard";
 
-const moodFor = (cutBps: number | null): MascotMood => {
-  if (cutBps === null) return "idle";
-  if (cutBps >= 6_600) return "happy";
-  if (cutBps >= 3_300) return "neutral";
+const moodFor = (accuracyBps: number | null): MascotMood => {
+  if (accuracyBps === null) return "idle";
+  if (accuracyBps >= 9_000) return "happy";
+  if (accuracyBps >= 6_000) return "neutral";
   return "sad";
 };
 
 export default function LuckySliceGame() {
   const { publicKey } = useWallet();
-  const { state, lastRoll, status, error, slice } = useLuckySlice();
+  const { stats, round, lastResult, status, error, startRound, submitCut } =
+    useLuckySlice();
 
-  const [justSliced, setJustSliced] = useState(false);
   const busy = status === "pending" || status === "confirming";
+  // Swinging as soon as a round is confirmed and nothing's been cut from it
+  // yet; submitCut clears `round` immediately on success, which stops it.
+  const swinging = round !== null && !busy;
 
-  useEffect(() => {
-    if (!justSliced) return;
-    const id = setTimeout(() => setJustSliced(false), 600);
-    return () => clearTimeout(id);
-  }, [justSliced, lastRoll]);
+  // Remounting KnifeCookieScene on every new round (via key) resets its
+  // internal tapped-position state for free, rather than needing an effect
+  // inside it to reset on `swinging` — a synchronous setState in an effect
+  // body is exactly the pattern that caused Cookie Crush's timer bug.
+  const [roundToken, setRoundToken] = useState(0);
 
-  const handleSlice = async () => {
-    setJustSliced(false);
-    const ok = await slice();
-    if (ok) setJustSliced(true);
+  const handleStart = () => {
+    setRoundToken((t) => t + 1);
+    startRound();
+  };
+
+  const handleCut = (actualBps: number) => {
+    submitCut(actualBps);
   };
 
   if (!publicKey) {
@@ -45,41 +52,65 @@ export default function LuckySliceGame() {
     <div className="flex w-full flex-col gap-6 lg:flex-row lg:items-start">
       <div className="flex-1">
         <div className="flex flex-col items-center gap-6 rounded-3xl border border-border bg-surface p-6 shadow-sm sm:p-8">
-          <div className="flex items-center gap-8">
-            <CrumbMascot mood={moodFor(lastRoll)} className="h-28 w-28" />
-            <HangingCookie cutBps={lastRoll} sliced={justSliced} />
+          <div className="flex items-center gap-6">
+            <CrumbMascot mood={moodFor(lastResult?.accuracyBps ?? null)} className="h-24 w-24" />
+            <KnifeCookieScene
+              key={roundToken}
+              targetBps={round?.targetBps ?? null}
+              swinging={swinging}
+              frozenAtBps={lastResult?.actualBps ?? null}
+              onCut={handleCut}
+            />
           </div>
 
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-sm text-muted">
-              {lastRoll === null ? "Take your first slice" : "Your last cut"}
-            </span>
-            <span className="font-display text-3xl font-semibold tabular-nums">
-              {lastRoll === null ? "—" : `${(lastRoll / 100).toFixed(2)}%`}
-            </span>
-          </div>
+          {lastResult ? (
+            <div className="flex flex-col items-center gap-3">
+              <Scale actualBps={lastResult.actualBps} />
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-sm text-muted">Accuracy</span>
+                <span className="font-display text-3xl font-semibold tabular-nums">
+                  {(lastResult.accuracyBps / 100).toFixed(2)}%
+                </span>
+              </div>
+            </div>
+          ) : round ? (
+            <p className="text-center text-sm text-muted">
+              Target marked in green — tap the knife when it lines up.
+            </p>
+          ) : (
+            <p className="text-center text-sm text-muted">
+              Start a round to get a target, then tap the knife as it swings
+              past it.
+            </p>
+          )}
 
           <button
-            onClick={handleSlice}
-            disabled={busy}
+            onClick={round ? undefined : handleStart}
+            disabled={busy || !!round}
             className="h-12 w-full max-w-xs rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
           >
-            {busy ? "Slicing…" : "Slice"}
+            {busy
+              ? "Working…"
+              : round
+                ? "Tap the cookie to cut"
+                : lastResult
+                  ? "Play again"
+                  : "Start round"}
           </button>
 
-          {state && (
+          {stats && (
             <div className="flex w-full items-center justify-around rounded-2xl bg-background px-4 py-3 text-sm">
               <div className="flex flex-col items-center">
-                <span className="text-muted">Best cut</span>
+                <span className="text-muted">Best accuracy</span>
                 <span className="font-mono font-semibold tabular-nums">
-                  {(state.bestCutBps / 100).toFixed(2)}%
+                  {(stats.bestAccuracyBps / 100).toFixed(2)}%
                 </span>
               </div>
               <div className="h-8 w-px bg-border" aria-hidden />
               <div className="flex flex-col items-center">
-                <span className="text-muted">Attempts</span>
+                <span className="text-muted">Rounds played</span>
                 <span className="font-mono font-semibold tabular-nums">
-                  {state.attempts.toLocaleString()}
+                  {stats.attempts.toLocaleString()}
                 </span>
               </div>
             </div>
