@@ -1,7 +1,12 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 
 interface GameCardProps {
-  emoji: string;
+  /** Plain-text emoji icon. Prefer `icon` for anything not universally
+   * supported by older Windows font releases (see JarIcon's note). */
+  emoji?: string;
+  /** A rendered icon (e.g. an inline SVG) used instead of `emoji`. */
+  icon?: ReactNode;
   title: string;
   description: string;
   href?: string;
@@ -9,6 +14,7 @@ interface GameCardProps {
 
 export default function GameCard({
   emoji,
+  icon,
   title,
   description,
   href,
@@ -21,7 +27,7 @@ export default function GameCard({
           : "opacity-60 grayscale-[30%]"
       }`}
     >
-      <span className="text-4xl">{emoji}</span>
+      {icon ?? <span className="text-4xl">{emoji}</span>}
       <h3 className="font-display text-xl font-semibold">{title}</h3>
       <p className="flex-1 text-sm text-muted">{description}</p>
       {!href && (

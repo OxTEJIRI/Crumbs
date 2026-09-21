@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import GameCard from "@/components/hub/GameCard";
+import JarIcon from "@/components/jar/JarIcon";
 
 export default function Home() {
   return (
@@ -20,7 +21,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <GameCard
-            emoji="🫙"
+            icon={<JarIcon className="h-10 w-10" />}
             title="Jar Wars"
             description="Bake, hoard, and raid Cookie Jars. Mint a jar, earn $CRUMB over time, and steal from rivals in a commit-reveal raid."
             href="/games/jar-wars"

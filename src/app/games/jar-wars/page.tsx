@@ -7,6 +7,7 @@ import Header from "@/components/layout/Header";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 import JarPanel from "@/components/jar/JarPanel";
 import Leaderboard from "@/components/jar/Leaderboard";
+import JarIcon from "@/components/jar/JarIcon";
 import { useCookieJar, useLiveCrumbs } from "@/hooks/useCookieJar";
 
 function GameSubHeader() {
@@ -25,7 +26,7 @@ function GameSubHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <span aria-hidden>🫙</span>
+          <JarIcon className="h-5 w-5 shrink-0" />
           <span className="font-display font-semibold">Jar Wars</span>
         </div>
 
@@ -47,7 +48,7 @@ function GameSubHeader() {
 function Hero() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-24 text-center">
-      <span className="text-7xl">🫙</span>
+      <JarIcon className="h-24 w-24" />
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-5xl font-semibold tracking-tight sm:text-6xl">
           Jar Wars
@@ -61,9 +62,7 @@ function Hero() {
       <WalletConnectButton />
       <ol className="mt-4 grid max-w-2xl grid-cols-2 gap-6 text-sm text-muted sm:grid-cols-4">
         <li className="flex flex-col items-center gap-1">
-          <span aria-hidden className="text-2xl">
-            🫙
-          </span>
+          <JarIcon className="h-8 w-8" />
           <span className="font-medium text-foreground">1. Mint a jar</span>
           <span>One-time setup</span>
         </li>
