@@ -69,8 +69,8 @@ export default function SuggestIdeaCard() {
               Suggest a game
             </h3>
             <p className="text-sm text-muted">
-              This opens your email client addressed to the Crumbs team —
-              nothing is sent from here directly.
+              This opens your email client addressed to the Crumbs team.
+              Nothing is sent from here directly.
             </p>
           </div>
 

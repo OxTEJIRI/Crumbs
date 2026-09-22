@@ -39,7 +39,7 @@ export default function JarPanel({
 
             <p className="w-full text-sm text-muted">
               Your jar earns crumbs automatically, every second, whether
-              you&apos;re here or not — claiming just banks what&apos;s
+              you&apos;re here or not. Claiming just banks what&apos;s
               piled up so far into your permanent balance.
             </p>
 

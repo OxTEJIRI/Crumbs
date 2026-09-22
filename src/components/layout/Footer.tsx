@@ -7,7 +7,7 @@ export default function Footer() {
           &quot;Build a cApp&quot; hackathon.
         </p>
         <p>
-          Every game action is a real transaction on Cookie Chain — no
+          Every game action is a real transaction on Cookie Chain, no
           mocked or fake calls.
         </p>
       </div>

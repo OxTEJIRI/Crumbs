@@ -68,7 +68,7 @@ export default function NetworkSetupNote() {
         <div className="absolute left-0 top-full z-50 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-surface p-4 text-sm shadow-md sm:left-auto sm:right-0">
           <p className="text-muted">
             Nightly needs Cookie Chain added as a custom network before it can
-            sign and send here — otherwise it silently tries your wallet&apos;s
+            sign and send here. Otherwise it silently tries your wallet&apos;s
             default network instead.
           </p>
           <div className="mt-3 flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5">

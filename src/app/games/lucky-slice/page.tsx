@@ -45,13 +45,13 @@ function Hero() {
         </h1>
         <p className="max-w-md text-lg text-muted">
           A random target lands on the board, a knife swings over the
-          cookie — tap at the right moment to cut as close to it as you
+          cookie. Tap at the right moment to cut as close to it as you
           can. Climb the leaderboard on precision, not luck.
         </p>
       </div>
       <WalletConnectButton />
       <p className="max-w-sm text-sm text-muted">
-        Free to play — no stakes, just bragging rights. Your target comes
+        Free to play, no stakes, just bragging rights. Your target comes
         from a real on-chain transaction using Cookie Chain&apos;s own
         randomness, so nobody can pick an easy one.
       </p>

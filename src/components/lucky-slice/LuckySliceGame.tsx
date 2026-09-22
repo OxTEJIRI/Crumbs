@@ -76,7 +76,7 @@ export default function LuckySliceGame() {
             </div>
           ) : round ? (
             <p className="text-center text-sm text-muted">
-              Target marked in green — tap the knife when it lines up.
+              Target marked in green. Tap the knife when it lines up.
             </p>
           ) : (
             <p className="text-center text-sm text-muted">

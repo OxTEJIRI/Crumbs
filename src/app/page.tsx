@@ -33,7 +33,7 @@ export default function Home() {
           </h1>
           <p className="max-w-lg font-mono text-sm text-muted sm:text-base">
             A growing collection of on-chain games on Cookie Chain. Connect a
-            wallet and pick one to play — every game action is a real
+            wallet and pick one to play. Every game action is a real
             transaction.
           </p>
         </div>
@@ -54,13 +54,13 @@ export default function Home() {
           <GameCard
             emoji="🍪"
             title="Nibble"
-            description="One cookie, one pot, everyone bites. Bake it, or pay to take a bite — the bite that finishes it takes what's left."
+            description="One cookie, one pot, everyone bites. Bake it, or pay to take a bite. The bite that finishes it takes what's left."
             href="/games/nibble"
           />
           <GameCard
             icon={<CrumbMascot mood="happy" className="h-10 w-10" />}
             title="Lucky Slice"
-            description="A random target, a swinging knife, one perfectly-timed tap. Cut as close to the target as you can — free to play, no stakes."
+            description="A random target, a swinging knife, one perfectly-timed tap. Cut as close to the target as you can. Free to play, no stakes."
             href="/games/lucky-slice"
           />
           <SuggestIdeaCard />

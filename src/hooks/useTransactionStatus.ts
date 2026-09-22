@@ -66,13 +66,13 @@ export function describeError(err: unknown): string {
     return "That bite is below the minimum bid.";
   }
   if (/BakerLocked/.test(message)) {
-    return "You just baked this cookie — wait a few slots before biting it.";
+    return "You just baked this cookie. Wait a few slots before biting it.";
   }
   if (/NotTheBaker/.test(message)) {
     return "Only the baker of this batch can do that.";
   }
   if (/NotIdleYet/.test(message)) {
-    return "The oven isn't idle yet — there's nothing to stoke.";
+    return "The oven isn't idle yet. There's nothing to stoke.";
   }
   if (/GlazeCostExceeded/.test(message)) {
     return "The cookie heated up before that landed, so glazing got more expensive. Try again.";

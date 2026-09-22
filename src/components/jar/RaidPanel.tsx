@@ -55,7 +55,7 @@ export default function RaidPanel({
           {!canReveal && (
             <p className="text-center text-xs text-muted">
               The outcome is drawn from a block produced after your commit, so
-              nobody — including you — can know it in advance.
+              nobody, including you, can know it in advance.
             </p>
           )}
         </>
@@ -69,7 +69,7 @@ export default function RaidPanel({
             >
               <span className="flex flex-col">
                 <span className="text-sm font-medium">
-                  🎯 Practice Jar — always here, always worth raiding
+                  🎯 Practice Jar, always here, always worth raiding
                 </span>
                 <span className="text-xs text-muted">
                   {practiceTotal !== null
@@ -87,7 +87,7 @@ export default function RaidPanel({
             Or pick a rival from the leaderboard (click{" "}
             <strong>⚔️ Raid</strong> next to their name to fill this in), or
             paste their wallet address directly. Raiding costs {stake} crumbs
-            upfront: win it back plus a cut of their jar, or lose it — the
+            upfront: win it back plus a cut of their jar, or lose it. The
             outcome is settled in a second step below, so nobody can know it
             in advance.
           </p>
@@ -121,7 +121,7 @@ export default function RaidPanel({
           >
             {outcome.succeeded
               ? `🎉 You won ${outcome.looted.toLocaleString()} crumbs!`
-              : "😬 Raid failed — you lost your stake"}
+              : "😬 Raid failed, you lost your stake"}
           </p>
           <p className="mt-1 text-xs text-muted">
             Rolled {outcome.roll} against a {outcome.threshold}% success

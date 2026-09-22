@@ -44,7 +44,7 @@ function Hero() {
         </h1>
         <p className="max-w-md text-lg text-muted">
           Match 3 or more treats to score before time runs out. Start a
-          level and submit your score on-chain — the board itself is all
+          level and submit your score on-chain. The board itself is all
           client-side, so it plays fast.
         </p>
       </div>

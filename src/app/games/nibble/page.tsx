@@ -44,7 +44,7 @@ function Hero() {
         </h1>
         <p className="max-w-md text-lg text-muted">
           One cookie. One pot. Everyone bites. Bake a cookie to start the pot,
-          or pay to take a bite out of someone else&apos;s — the bite that
+          or pay to take a bite out of someone else&apos;s. The bite that
           finishes it takes what&apos;s left.
         </p>
       </div>
@@ -103,7 +103,7 @@ function HowToPlay() {
           <span className="font-medium text-foreground">Bite.</span> Anyone can
           pay to take a bite. Bigger bids do more damage, with diminishing
           returns, so no single bite can finish a healthy cookie. Your bid joins
-          the pot and you get a share of crumbs back immediately — always less
+          the pot and you get a share of crumbs back immediately, always less
           than you paid. You&apos;re buying a chance at the ending.
         </p>
         <p>
@@ -114,7 +114,7 @@ function HowToPlay() {
         <p>
           <span className="font-medium text-foreground">Heat.</span> Every bite
           heats the oven, and so does leaving it alone. If heat maxes out, the
-          cookie burns and the whole pot goes to the jar — nobody wins.
+          cookie burns and the whole pot goes to the jar. Nobody wins.
         </p>
         <p>
           <span className="font-medium text-foreground">

@@ -164,7 +164,7 @@ export default function NibbleOven() {
     if (bidLamports < MIN_NIBBLE_LAMPORTS)
       return `Minimum bite is ${formatCook(MIN_NIBBLE_LAMPORTS)}.`;
     if (isBaker && lockedSlotsLeft > 0)
-      return `You just baked this — ${lockedSlotsLeft} more slot${
+      return `You just baked this. ${lockedSlotsLeft} more slot${
         lockedSlotsLeft === 1 ? "" : "s"
       } before you can bite it.`;
     return null;
@@ -219,7 +219,7 @@ export default function NibbleOven() {
 
           {overdue && (
             <p className="rounded-xl bg-danger-surface p-3 text-center text-sm">
-              Nobody has touched this in {idleSlots} slots — it&apos;s taken{" "}
+              Nobody has touched this in {idleSlots} slots. It&apos;s taken{" "}
               {idleTicks} heat tick{idleTicks === 1 ? "" : "s"} and will keep
               cooking until someone acts.
             </p>
@@ -264,7 +264,7 @@ export default function NibbleOven() {
                 </div>
                 {bite.kills ? (
                   <p className="mt-1 rounded-lg bg-surface p-2 text-center text-xs">
-                    This bite finishes it — you&apos;d also take the remaining
+                    This bite finishes it. You&apos;d also take the remaining
                     pot of{" "}
                     <span className="font-mono">{formatCook(bite.winnings)}</span>
                   </p>
@@ -304,7 +304,7 @@ export default function NibbleOven() {
                 >
                   {busy
                     ? "Working…"
-                    : `Glaze for ${formatCook(glazeCostLamports(state.heat))} — −${
+                    : `Glaze for ${formatCook(glazeCostLamports(state.heat))}: −${
                         GLAZE_HEAT_REDUCTION / 100
                       }% heat, +${GLAZE_HP_RESTORE / 100}% cookie`}
                 </button>
@@ -315,7 +315,7 @@ export default function NibbleOven() {
                 >
                   {busy
                     ? "Working…"
-                    : `Pull it out — take ${formatCook(
+                    : `Pull it out: take ${formatCook(
                         state.pot -
                           Math.floor((state.pot * JAR_SHARE_BPS) / BPS_DENOMINATOR)
                       )}`}
@@ -331,7 +331,7 @@ export default function NibbleOven() {
               >
                 {busy
                   ? "Working…"
-                  : `Stoke the oven — add ${(
+                  : `Stoke the oven: add ${(
                       (IDLE_HEAT * idleTicks) /
                       100
                     ).toFixed(0)}% heat`}
@@ -346,7 +346,7 @@ export default function NibbleOven() {
             <p className="text-sm text-muted">
               Whatever you put in starts the pot. Everyone else pays to bite it,
               and every bite grows the pot. Pull it out in time and you take
-              what&apos;s left — let it burn and the jar takes everything.
+              what&apos;s left. Let it burn and the jar takes everything.
             </p>
             <AmountInput
               value={bakeAmount}
