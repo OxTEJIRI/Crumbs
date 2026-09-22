@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Header from "@/components/layout/Header";
 import GameCard from "@/components/hub/GameCard";
 import SuggestIdeaCard from "@/components/hub/SuggestIdeaCard";
@@ -11,7 +12,20 @@ export default function Home() {
       <Header />
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-16">
         <div className="flex flex-col items-center gap-4 pt-6 text-center sm:pt-10">
-          <span className="text-6xl">🍪</span>
+          <div className="relative">
+            <div
+              aria-hidden
+              className="animate-glow-pulse absolute inset-0 -z-10 rounded-full bg-primary/30 blur-3xl"
+            />
+            <Image
+              src="/logo.jpg"
+              alt="Crumbs"
+              width={96}
+              height={96}
+              className="rounded-full ring-2 ring-primary/40"
+              priority
+            />
+          </div>
           <h1 className="font-display text-6xl font-bold uppercase tracking-tight text-foreground sm:text-7xl">
             Crumbs.
             <br />

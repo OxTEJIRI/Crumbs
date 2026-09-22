@@ -80,9 +80,35 @@ body {
      the fixed 48px height then clips. */
   white-space: nowrap !important;
   flex-shrink: 0 !important;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 200ms ease, background-color 200ms ease;
 }
 .wallet-adapter-button-trigger:not([disabled]):hover {
   background-color: var(--primary-hover) !important;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 60%, transparent),
+    0 0 20px color-mix(in oklab, var(--primary) 55%, transparent);
+}
+/* A single light sweep on hover — a common "futuristic" button cue, kept to
+   one pass (not a looping animation) so it reads as a response to the
+   hover rather than a distracting idle effect. */
+.wallet-adapter-button-trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    color-mix(in oklab, white 45%, transparent) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wallet-adapter-button-trigger:not([disabled]):hover::after {
+    animation: shine 700ms ease forwards;
+  }
 }
 .wallet-adapter-button {
   color: var(--primary-foreground) !important;
@@ -162,5 +188,32 @@ body {
   100% {
     transform: translateY(55px) rotate(12deg);
     opacity: 0;
+  }
+}
+
+@keyframes shine {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.08);
+  }
+}
+
+/* A slow, ambient breathing glow — used behind the hero logo and other
+   single "hero" focal points. Opacity/transform only (no layout
+   properties), and only one such element per view per the excessive-motion
+   guideline, so it reads as alive without being distracting. */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-glow-pulse {
+    animation: glow-pulse 3.5s ease-in-out infinite;
   }
 }

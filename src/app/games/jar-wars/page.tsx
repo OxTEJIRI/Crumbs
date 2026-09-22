@@ -48,7 +48,13 @@ function GameSubHeader() {
 function Hero() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-24 text-center">
-      <JarIcon className="h-24 w-24" />
+      <div className="relative">
+        <div
+          aria-hidden
+          className="animate-glow-pulse absolute inset-0 -z-10 rounded-full bg-primary/30 blur-3xl"
+        />
+        <JarIcon className="h-24 w-24" />
+      </div>
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-5xl font-bold uppercase tracking-tight sm:text-6xl">
           Jar Wars

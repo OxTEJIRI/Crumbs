@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 import NetworkSetupNote from "@/components/wallet/NetworkSetupNote";
@@ -9,7 +10,14 @@ export default function Header() {
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:flex-nowrap sm:px-6 sm:py-4">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">🍪</span>
+          <Image
+            src="/logo.jpg"
+            alt="Crumbs"
+            width={32}
+            height={32}
+            className="rounded-full ring-1 ring-primary/30"
+            priority
+          />
           <span className="font-display text-xl font-semibold tracking-tight">
             Crumbs
           </span>
