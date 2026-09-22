@@ -53,6 +53,36 @@ function Hero() {
         Nibble plays with real COOK. Every bake, bite and glaze is a live
         transaction.
       </p>
+      <ol className="mt-4 grid max-w-2xl grid-cols-2 gap-6 text-sm text-muted sm:grid-cols-4">
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🔥
+          </span>
+          <span className="font-medium text-foreground">1. Bake a cookie</span>
+          <span>Or find a live one</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🍪
+          </span>
+          <span className="font-medium text-foreground">2. Take a bite</span>
+          <span>A chance at the pot</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🏆
+          </span>
+          <span className="font-medium text-foreground">3. Land the last bite</span>
+          <span>Win what&apos;s left</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            ⏳
+          </span>
+          <span className="font-medium text-foreground">4. Or pull in time</span>
+          <span>Wait too long, it burns</span>
+        </li>
+      </ol>
     </div>
   );
 }

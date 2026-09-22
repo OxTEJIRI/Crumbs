@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
-/* Dark, warm-toned "game shelf" look is Crumbs' default identity now —
-   not conditional on OS preference. The bakery-cream palette survives as
-   an explicit opt-out for anyone whose system is set to light (see the
-   prefers-color-scheme: light block below), matching how it behaved
-   before this redesign, just with the default flipped. */
+/* Dark, warm-toned "game shelf" look is Crumbs' one and only theme —
+   unconditional, not dependent on OS preference. An earlier pass kept the
+   old cream palette as a prefers-color-scheme: light fallback, but that
+   meant desktop and mobile could show two different looks depending on
+   each device's own OS setting, which read as inconsistent rather than
+   as a deliberate choice. Dropped the fallback entirely so every visitor
+   sees the same identity everywhere. */
 :root {
   --background: #110c07;
   --surface: #2b2013;
@@ -36,23 +38,6 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-fredoka);
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --background: #fbf3e6;
-    --surface: #fffcf6;
-    --foreground: #372615;
-    --muted: #8a7460;
-    --border: #e9dcc4;
-    --primary: #c9791f;
-    --primary-hover: #b3690f;
-    --primary-foreground: #fffaf0;
-    --accent: #e8a33d;
-    --danger: #c14e33;
-    --danger-surface: #fbe9e2;
-    --success: #4c8a5e;
-  }
 }
 
 body {
@@ -119,6 +104,19 @@ body {
 }
 .wallet-adapter-modal-title {
   color: var(--foreground) !important;
+}
+/* The library's modal has no subtitle slot to hook into from React without
+   forking the component, so the "use Nightly" recommendation is added as
+   generated content on the title itself — the same reasoning as every
+   other override in this file: re-skin the library in place rather than
+   fork it. */
+.wallet-adapter-modal-title::after {
+  content: "We recommend connecting with the Nightly wallet — it's the one Crumbs is built and tested against.";
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted) !important;
 }
 .wallet-adapter-modal-list .wallet-adapter-button {
   color: var(--foreground) !important;

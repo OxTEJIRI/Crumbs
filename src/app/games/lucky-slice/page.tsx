@@ -55,6 +55,36 @@ function Hero() {
         from a real on-chain transaction using Cookie Chain&apos;s own
         randomness, so nobody can pick an easy one.
       </p>
+      <ol className="mt-4 grid max-w-2xl grid-cols-2 gap-6 text-sm text-muted sm:grid-cols-4">
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🎯
+          </span>
+          <span className="font-medium text-foreground">1. Start a round</span>
+          <span>Rolls your target on-chain</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🔪
+          </span>
+          <span className="font-medium text-foreground">2. Time your tap</span>
+          <span>The knife keeps swinging</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            📝
+          </span>
+          <span className="font-medium text-foreground">3. Submit your cut</span>
+          <span>Recorded on-chain</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🏆
+          </span>
+          <span className="font-medium text-foreground">4. Best accuracy wins</span>
+          <span>Climb the leaderboard</span>
+        </li>
+      </ol>
     </div>
   );
 }

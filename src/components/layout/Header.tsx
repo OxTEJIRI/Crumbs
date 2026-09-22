@@ -26,8 +26,11 @@ export default function Header() {
         {/* On mobile, the note drops to its own full-width line below the
             logo/wallet row instead of competing with them for space — that
             crowding was what pushed the wallet button too narrow to fit its
-            own text on one line. Desktop keeps the original single row. */}
-        <div className="order-3 w-full sm:order-none sm:w-auto">
+            own text on one line. On desktop, `ml-auto` pulls it (and the
+            wallet button right after it) together as one group flush
+            against the right edge, rather than letting justify-between
+            spread it and the wallet button apart across the whole row. */}
+        <div className="order-3 w-full sm:order-none sm:ml-auto sm:w-auto">
           <NetworkSetupNote />
         </div>
 

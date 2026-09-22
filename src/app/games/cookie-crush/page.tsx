@@ -49,6 +49,36 @@ function Hero() {
         </p>
       </div>
       <WalletConnectButton />
+      <ol className="mt-4 grid max-w-2xl grid-cols-2 gap-6 text-sm text-muted sm:grid-cols-4">
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🚦
+          </span>
+          <span className="font-medium text-foreground">1. Start a level</span>
+          <span>One on-chain transaction</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🍬
+          </span>
+          <span className="font-medium text-foreground">2. Match treats</span>
+          <span>Fast, client-side, timed</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            📝
+          </span>
+          <span className="font-medium text-foreground">3. Submit your score</span>
+          <span>Recorded on-chain</span>
+        </li>
+        <li className="flex flex-col items-center gap-1">
+          <span aria-hidden className="text-2xl">
+            🏆
+          </span>
+          <span className="font-medium text-foreground">4. Climb the board</span>
+          <span>Beat your own best</span>
+        </li>
+      </ol>
     </div>
   );
 }
