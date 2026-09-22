@@ -45,12 +45,15 @@ body {
   color: var(--foreground);
   /* A faint receding grid gives the dark canvas depth without needing any
      image asset — two low-opacity linear gradients, drawn from the theme's
-     own border color so it stays in-palette in both light and dark mode
-     rather than a hardcoded value. */
+     own border color so it stays in-palette. Kept deliberately subtle:
+     --border itself was brightened to clear WCAG's 3:1 non-text contrast
+     minimum for actual UI element borders, so reusing it at full strength
+     here made the ambient background grid read as a bold, distinct
+     pattern rather than texture. */
   background-image:
-    linear-gradient(color-mix(in oklab, var(--border) 35%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklab, var(--border) 35%, transparent) 1px, transparent 1px);
-  background-size: 56px 56px;
+    linear-gradient(color-mix(in oklab, var(--border) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--border) 10%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
   background-attachment: fixed;
 }
 
