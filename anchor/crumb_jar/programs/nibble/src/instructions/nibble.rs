@@ -27,10 +27,15 @@ pub fn handle_nibble(ctx: Context<Nibble>, bid: u64) -> Result<()> {
     let nibbler_info = ctx.accounts.nibbler.to_account_info();
     let nibbler_key = ctx.accounts.nibbler.key();
 
-    // A bite arriving after a long silence cooks the oven first; if that
-    // burns it, the Live check right after rejects this bite with a clear
-    // error instead of letting it land on an already-dead cookie.
-    apply_idle_heat_and_maybe_burn(&mut ctx.accounts.cookie, &jar_info, clock.slot)?;
+    // A bite arriving after a long silence cooks the oven first. If that
+    // maxes out the heat, the burn has to actually be allowed to land
+    // (returning Ok) rather than rejected with an error afterward — a
+    // require! failing here would roll back the burn along with everything
+    // else in this transaction, since Solana instructions are atomic.
+    if apply_idle_heat_and_maybe_burn(&mut ctx.accounts.cookie, &jar_info, clock.slot)? {
+        msg!("Cookie burned from neglect before this bite could land");
+        return Ok(());
+    }
     require!(
         ctx.accounts.cookie.state == CookieState::Live,
         NibbleError::CookieNotLive

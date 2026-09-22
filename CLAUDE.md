@@ -50,7 +50,15 @@ The whole game is one singleton PDA (`[b"oven"]`), recycled per batch.
 The pot is the account's own lamport balance above rent, never a tracked
 field, so it can't drift from reality. Every instruction calls
 `apply_idle_heat_and_maybe_burn` first, so an overdue burn always lands
-before anything else — including a baker trying to pull out from under it.
+before anything else, including a baker trying to pull out from under it.
+That function returns whether it burned, and nibble/glaze/pull all return
+`Ok(())` immediately when it did, rather than falling through to their own
+`require!(state == Live)`. A `require!` failing after the burn would roll
+the whole transaction back, including the burn itself, since Solana
+instructions are atomic; a real bug shipped this way once (fixed in
+commit history), where every bite on an overdue cookie failed with
+`CookieNotLive` and left it permanently stuck, since nothing could ever
+process the burn that would have freed it.
 
 Economy math lives in `math.rs` as pure integer functions (u128
 intermediates, no floats) and is mirrored in `src/lib/solana/nibble.ts`
@@ -63,15 +71,27 @@ the chain enforces.
 rent-exempt minimum, and only ever credited — never a signer.
 
 Status: deployed to Cookie Chain at
-`96A38RPbCfpcv8o5ZCbTSq8Q1kT6DBujHygJMiWLDbWj`. 9 math unit tests + 13
+`96A38RPbCfpcv8o5ZCbTSq8Q1kT6DBujHygJMiWLDbWj`. 9 math unit tests + 14
 integration tests passing against a local validator (including a fresh
-chain where the treasury account does not exist yet). Bake and the
-neglect-burn path are confirmed live with real COOK and a real Nightly
-wallet — a bake landed, was left idle, and the burn sent the full pot to
-the treasury exactly as `math.rs` predicts. **Bite, glaze, and pull are
-still only integration-test-covered**, not yet exercised through the UI
-with a real wallet (bite in particular needs a second wallet, since
-biting your own freshly-baked cookie is locked out for 8 slots).
+chain where the treasury account does not exist yet, and a dedicated
+regression test for the atomic-rollback burn bug below). Bake, bite, and
+the neglect-burn path (via both `crank_heat` and a bite landing on an
+overdue cookie) are confirmed live with real COOK and a real Nightly
+wallet. **Glaze and pull are still only integration-test-covered**, not
+yet exercised through the UI with a real wallet.
+
+A real bug shipped and was fixed here: `nibble`, `glaze`, and `pull` all
+called `apply_idle_heat_and_maybe_burn` and then `require!(state ==
+Live)`. If the idle check burned the cookie, that `require!` correctly
+rejected the stale action, but Solana instructions are atomic, so failing
+it also rolled back the burn itself; nothing was ever recorded on-chain.
+Every bite on an overdue cookie failed with `CookieNotLive` and left it
+permanently stuck, since no bite/glaze/pull could ever process the burn
+that would have freed it (only `crank_heat`, which doesn't have this
+pattern, could). Fixed by having the burn-check helper report whether it
+burned, so the three callers return `Ok(())` immediately when it did
+instead of falling through to a check that would undo it. Upgraded live
+on Cookie Chain (same program ID) for 0.00242768 COOK.
 
 ### Lucky Slice (`/games/lucky-slice`, `anchor/crumb_jar/programs/lucky_slice/`)
 Free, no-stakes timing game. A cookie hangs on a track, a knife sweeps up

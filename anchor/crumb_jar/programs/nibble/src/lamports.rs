@@ -37,25 +37,36 @@ pub fn burn<'info>(cookie: &mut Account<'info, Cookie>, jar: &AccountInfo<'info>
 }
 
 /// Applies heat for every full IDLE_SLOTS window since the last action, and
-/// burns if that pushes heat to the cap. Called first thing by nibble, glaze,
-/// and crank_heat — if it burns, the Live check each of them runs
-/// immediately after this naturally rejects the action with a clear error,
-/// rather than needing special-case handling in every caller.
+/// burns if that pushes heat to the cap. Called first thing by nibble,
+/// glaze, and pull. Returns whether it burned, so the caller can return
+/// `Ok(())` immediately instead of falling through to its own `require!`
+/// checks.
+///
+/// This used to fall through into a `require!(state == Live)` in every
+/// caller on the assumption that failing there would "naturally reject the
+/// action with a clear error." That was wrong: Solana instructions are
+/// atomic, so a `require!` failing *after* this ran would roll back
+/// everything the instruction did in the same transaction, including the
+/// burn's own lamport transfer and state change. The cookie would compute
+/// as burned, then that computation would be discarded, over and over,
+/// forever, since nothing ever actually got recorded on-chain — the whole
+/// point of finally recording it was undone by the very check meant to
+/// reject the stale action.
 pub fn apply_idle_heat_and_maybe_burn<'info>(
     cookie: &mut Account<'info, Cookie>,
     jar: &AccountInfo<'info>,
     current_slot: u64,
-) -> Result<()> {
+) -> Result<bool> {
     use crate::constants::*;
     use crate::state::CookieState;
 
     if cookie.state != CookieState::Live {
-        return Ok(());
+        return Ok(false);
     }
 
     let idle_slots = current_slot.saturating_sub(cookie.last_action_slot);
     if idle_slots < IDLE_SLOTS {
-        return Ok(());
+        return Ok(false);
     }
 
     let ticks = idle_slots / IDLE_SLOTS;
@@ -65,7 +76,8 @@ pub fn apply_idle_heat_and_maybe_burn<'info>(
 
     if cookie.heat >= MAX_HEAT {
         burn(cookie, jar)?;
+        return Ok(true);
     }
 
-    Ok(())
+    Ok(false)
 }

@@ -19,6 +19,9 @@ const JAR_SHARE_BPS = 200;
 const GLAZE_BASE_COST_LAMPORTS = 5_000_000;
 const GLAZE_HEAT_DIVISOR = 20;
 const IDLE_HEAT = 2_500;
+const IDLE_SLOTS = 15;
+/** MAX_HEAT / IDLE_HEAT ticks, each requiring IDLE_SLOTS of pure neglect. */
+const SLOTS_TO_BURN_FROM_NEGLECT_ALONE = (MAX_HEAT / IDLE_HEAT) * IDLE_SLOTS;
 
 /**
  * Heat can also rise from idleness between our own test steps — the validator
@@ -502,6 +505,79 @@ describe("nibble", () => {
       );
     }
 
-    console.log(`Burned from neglect — jar received the full pot: ${bakeAmount} lamports`);
+    console.log(`Burned from neglect, jar received the full pot: ${bakeAmount} lamports`);
+
+    await program.methods
+      .bake(new anchor.BN(cook(0.1)))
+      .accountsPartial({ baker, cookie })
+      .rpc();
+    await endCurrentBatch();
+  });
+
+  it("A bite on an overdue cookie still burns it, instead of failing and rolling the burn back", async () => {
+    // Regression test for a real bug: apply_idle_heat_and_maybe_burn used to
+    // run, burn the cookie, and return Ok -- and then the very next line,
+    // require!(state == Live), would fail and roll back everything the
+    // instruction had done in that same transaction, including the burn's
+    // own lamport transfer and state change. Solana instructions are atomic,
+    // so nothing from the burn was ever actually recorded on-chain: every
+    // bite on an overdue cookie failed with CookieNotLive and left it
+    // permanently stuck, since nobody's bite could ever process the burn
+    // that would have unstuck it.
+    //
+    // The cookie has to sit genuinely untouched here, not repeatedly poked
+    // -- an earlier version of this test called nibble in a retry loop,
+    // which meant most of those calls landed as ordinary successful bites
+    // (each one resetting last_action_slot and adding its own bid to the
+    // pot) well before the cookie was actually idle long enough to be
+    // overdue, so the eventual burn paid out more than the original bake.
+    // That was a bug in the test, not the program: this only proves what it
+    // claims to if exactly one bite lands, after real neglect.
+    const bakeAmount = cook(0.1);
+    await program.methods
+      .bake(new anchor.BN(bakeAmount))
+      .accountsPartial({ baker, cookie })
+      .rpc();
+
+    const jarBalanceBefore = await balanceOf(jar);
+    const baked = await program.account.cookie.fetch(cookie);
+    const lastActionSlot = baked.lastActionSlot.toNumber();
+
+    while (
+      (await provider.connection.getSlot()) - lastActionSlot <
+      SLOTS_TO_BURN_FROM_NEGLECT_ALONE
+    ) {
+      await sleep(2_000);
+    }
+
+    await program.methods
+      .nibble(new anchor.BN(cook(0.01)))
+      .accountsPartial({ nibbler: nibbler.publicKey, cookie, jar })
+      .signers([nibbler])
+      .rpc();
+
+    const after = await program.account.cookie.fetch(cookie);
+    if (!("burned" in after.state)) {
+      throw new Error(
+        `Expected this single overdue bite to burn the cookie, got ${JSON.stringify(after.state)}`
+      );
+    }
+
+    const jarBalanceAfter = await balanceOf(jar);
+    if (jarBalanceAfter - jarBalanceBefore !== bakeAmount) {
+      throw new Error(
+        `Expected exactly the original ${bakeAmount} lamport pot to reach the jar, with no bid taken from the nibbler, got ${jarBalanceAfter - jarBalanceBefore}`
+      );
+    }
+
+    console.log(
+      `A single overdue bite correctly burned the cookie and paid the jar exactly the original pot: ${bakeAmount} lamports, without taking the nibbler's bid`
+    );
+
+    await program.methods
+      .bake(new anchor.BN(cook(0.1)))
+      .accountsPartial({ baker, cookie })
+      .rpc();
+    await endCurrentBatch();
   });
 });

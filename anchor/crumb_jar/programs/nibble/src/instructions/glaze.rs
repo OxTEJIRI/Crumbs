@@ -29,7 +29,14 @@ pub fn handle_glaze(ctx: Context<Glaze>, max_cost: u64) -> Result<()> {
     let clock = Clock::get()?;
     let jar_info = ctx.accounts.jar.to_account_info();
 
-    apply_idle_heat_and_maybe_burn(&mut ctx.accounts.cookie, &jar_info, clock.slot)?;
+    // If this maxes out the heat, the burn has to actually be allowed to
+    // land (returning Ok) rather than rejected with an error afterward -- a
+    // require! failing here would roll back the burn along with everything
+    // else in this transaction, since Solana instructions are atomic.
+    if apply_idle_heat_and_maybe_burn(&mut ctx.accounts.cookie, &jar_info, clock.slot)? {
+        msg!("Cookie burned from neglect before this glaze could land");
+        return Ok(());
+    }
     require!(
         ctx.accounts.cookie.state == CookieState::Live,
         NibbleError::CookieNotLive

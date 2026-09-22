@@ -33,6 +33,11 @@ pub fn handle_crank_heat(ctx: Context<CrankHeat>) -> Result<()> {
     require!(idle_slots >= IDLE_SLOTS, NibbleError::NotIdleYet);
 
     let jar_info = ctx.accounts.jar.to_account_info();
-    apply_idle_heat_and_maybe_burn(&mut ctx.accounts.cookie, &jar_info, clock.slot)?;
+    let burned = apply_idle_heat_and_maybe_burn(&mut ctx.accounts.cookie, &jar_info, clock.slot)?;
+    if burned {
+        msg!("Cookie burned from neglect");
+    } else {
+        msg!("Idle heat applied, heat now {}", ctx.accounts.cookie.heat);
+    }
     Ok(())
 }
