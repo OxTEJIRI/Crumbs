@@ -56,10 +56,6 @@ export default function JarPanel({
               <dd className="text-right font-mono tabular-nums">
                 {jar.productionRate.toString()}/s
               </dd>
-              <dt className="text-muted">Defense level</dt>
-              <dd className="text-right font-mono tabular-nums">
-                {jar.defenseLevel}
-              </dd>
             </dl>
 
             <button

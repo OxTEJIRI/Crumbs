@@ -55,9 +55,6 @@ export default function Leaderboard({
                     <span className="ml-1.5 text-primary">(you)</span>
                   )}
                 </span>
-                <span className="hidden shrink-0 text-muted tabular-nums sm:inline">
-                  def {entry.defenseLevel}
-                </span>
                 <span className="w-20 shrink-0 text-right font-mono tabular-nums">
                   {entry.crumbs.toLocaleString()}
                 </span>
