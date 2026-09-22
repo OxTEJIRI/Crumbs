@@ -7,7 +7,6 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
   getOvenPda,
   glazeCostLamports,
-  IDLE_HEAT,
   JAR_ADDRESS,
   MAX_HEAT,
 } from "@/lib/solana/nibble";
@@ -162,10 +161,17 @@ export function useNibble() {
   const glaze = useCallback(async () => {
     if (!publicKey || !state) return false;
 
-    // Heat only ever rises before this lands, so the ceiling allows for one
-    // idle window's worth arriving first — otherwise a tick between preview
-    // and confirmation would fail the whole transaction.
-    const ceiling = glazeCostLamports(Math.min(MAX_HEAT, state.heat + IDLE_HEAT));
+    // Heat only ever rises before this lands (another bite, idle ticks,
+    // however long the player takes to confirm in their wallet), and
+    // glazeCostLamports is monotonic in heat — so glazeCostLamports(MAX_HEAT)
+    // is a real, exact upper bound on what glaze could ever cost while the
+    // cookie is still Live, not a guess. A one-tick buffer here used to
+    // fail in practice whenever more than one idle window elapsed between
+    // the last poll and the transaction landing, which even a slow wallet
+    // confirmation alone was enough to trigger. The price shown in the UI
+    // still reflects the current heat; only this on-chain slippage guard
+    // changed.
+    const ceiling = glazeCostLamports(MAX_HEAT);
 
     return run(
       "Glazing the cookie",
