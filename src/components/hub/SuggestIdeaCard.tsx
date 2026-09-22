@@ -29,7 +29,7 @@ export default function SuggestIdeaCard() {
       <button
         type="button"
         onClick={openModal}
-        className="flex h-full flex-col gap-3 rounded-3xl border border-border bg-surface p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+        className="flex h-full flex-col gap-3 rounded-3xl border border-primary/20 bg-surface p-6 text-left shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
       >
         <span className="text-4xl" aria-hidden>
           ✨

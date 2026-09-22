@@ -21,9 +21,9 @@ export default function GameCard({
 }: GameCardProps) {
   const content = (
     <div
-      className={`flex h-full flex-col gap-3 rounded-3xl border border-border bg-surface p-6 shadow-sm transition-all ${
+      className={`flex h-full flex-col gap-3 rounded-3xl border border-primary/20 bg-surface p-6 shadow-md transition-all ${
         href
-          ? "hover:-translate-y-0.5 hover:shadow-md"
+          ? "hover:-translate-y-0.5 hover:shadow-lg"
           : "opacity-60 grayscale-[30%]"
       }`}
     >

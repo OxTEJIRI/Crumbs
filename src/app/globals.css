@@ -61,6 +61,11 @@ body {
   background-color: var(--primary) !important;
   border-radius: 9999px !important;
   font-family: var(--font-sans) !important;
+  /* The library's own button has no wrap protection: at narrow widths it
+     shrinks below its text's natural width and wraps to a second line that
+     the fixed 48px height then clips. */
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 .wallet-adapter-button-trigger:not([disabled]):hover {
   background-color: var(--primary-hover) !important;

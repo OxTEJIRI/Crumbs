@@ -8,7 +8,7 @@ export default function ContributeCard() {
       href={REPO_URL}
       target="_blank"
       rel="noreferrer"
-      className="flex h-full flex-col gap-3 rounded-3xl border border-border bg-surface p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      className="flex h-full flex-col gap-3 rounded-3xl border border-primary/20 bg-surface p-6 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
     >
       <GitHubIcon className="h-10 w-10" />
       <h3 className="font-display text-xl font-semibold">Contribute</h3>
