@@ -29,16 +29,22 @@ export default function SuggestIdeaCard() {
       <button
         type="button"
         onClick={openModal}
-        className="flex h-full flex-col gap-3 rounded-3xl border border-primary/20 bg-surface p-6 text-left shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
+        className="group relative flex h-full flex-col gap-3 overflow-hidden rounded-3xl border border-primary/20 bg-surface p-6 text-left shadow-md transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
       >
-        <span className="text-4xl" aria-hidden>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-8 -top-8 h-32 w-32 rounded-full bg-primary/15 blur-2xl transition-opacity group-hover:opacity-80"
+        />
+        <span className="relative text-4xl" aria-hidden>
           ✨
         </span>
-        <h3 className="font-display text-xl font-semibold">Got an idea?</h3>
-        <p className="flex-1 text-sm text-muted">
+        <h3 className="relative font-display text-xl font-semibold tracking-tight">
+          Got an idea?
+        </h3>
+        <p className="relative flex-1 text-sm text-muted">
           Suggest the next game to add to Crumbs.
         </p>
-        <span className="w-fit rounded-full bg-background px-3 py-1 text-xs font-medium text-primary">
+        <span className="relative w-fit rounded-full bg-background px-3 py-1 text-xs font-medium text-primary">
           Send a suggestion
         </span>
       </button>

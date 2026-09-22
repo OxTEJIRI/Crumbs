@@ -21,17 +21,27 @@ export default function GameCard({
 }: GameCardProps) {
   const content = (
     <div
-      className={`flex h-full flex-col gap-3 rounded-3xl border border-primary/20 bg-surface p-6 shadow-md transition-all ${
+      className={`group relative flex h-full flex-col gap-3 overflow-hidden rounded-3xl border border-primary/20 bg-surface p-6 shadow-md transition-all ${
         href
-          ? "hover:-translate-y-0.5 hover:shadow-lg"
+          ? "hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
           : "opacity-60 grayscale-[30%]"
       }`}
     >
-      {icon ?? <span className="text-4xl">{emoji}</span>}
-      <h3 className="font-display text-xl font-semibold">{title}</h3>
-      <p className="flex-1 text-sm text-muted">{description}</p>
+      {/* A soft glow anchored behind the icon, the same device the
+          reference uses to give each tile its own presence against the
+          dark canvas — kept to the brand's own amber rather than a
+          different hue per card. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-8 -top-8 h-32 w-32 rounded-full bg-primary/15 blur-2xl transition-opacity group-hover:opacity-80"
+      />
+      <div className="relative">{icon ?? <span className="text-4xl">{emoji}</span>}</div>
+      <h3 className="relative font-display text-xl font-semibold tracking-tight">
+        {title}
+      </h3>
+      <p className="relative flex-1 text-sm text-muted">{description}</p>
       {!href && (
-        <span className="w-fit rounded-full bg-background px-3 py-1 text-xs font-medium text-muted">
+        <span className="relative w-fit rounded-full bg-background px-3 py-1 text-xs font-medium text-muted">
           Coming soon
         </span>
       )}

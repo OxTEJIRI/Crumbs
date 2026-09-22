@@ -10,12 +10,14 @@ export default function Home() {
     <div className="flex min-h-screen flex-1 flex-col">
       <Header />
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-16">
-        <div className="flex flex-col items-center gap-3 text-center">
+        <div className="flex flex-col items-center gap-4 pt-6 text-center sm:pt-10">
           <span className="text-6xl">🍪</span>
-          <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-            Crumbs
+          <h1 className="font-display text-6xl font-bold uppercase tracking-tight text-foreground sm:text-7xl">
+            Crumbs.
+            <br />
+            <span className="text-primary">Bake. Raid. Win.</span>
           </h1>
-          <p className="max-w-lg text-lg text-muted">
+          <p className="max-w-lg font-mono text-sm text-muted sm:text-base">
             A growing collection of on-chain games on Cookie Chain. Connect a
             wallet and pick one to play — every game action is a real
             transaction.
