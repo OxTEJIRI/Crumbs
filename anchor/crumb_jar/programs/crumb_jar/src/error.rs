@@ -16,4 +16,8 @@ pub enum CrumbJarError {
     RevealTooSoon,
     #[msg("The slot hashes sysvar could not be read")]
     SlotHashUnavailable,
+    #[msg("This jar's crumbs still need migrating to the real $CRUMB token before this will work")]
+    NotMigrated,
+    #[msg("This jar has already migrated to the real $CRUMB token")]
+    AlreadyMigrated,
 }

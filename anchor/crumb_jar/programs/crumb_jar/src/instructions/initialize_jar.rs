@@ -28,6 +28,8 @@ pub fn handle_initialize_jar(ctx: Context<InitializeJar>) -> Result<()> {
     jar.last_raid_ts = jar.last_claimed_ts.saturating_sub(RAID_COOLDOWN_SECONDS);
     jar.defense_level = 0;
     jar.bump = ctx.bumps.jar;
+    // Nothing to migrate for a jar that starts empty.
+    jar.migrated = true;
 
     msg!("Cookie Jar minted for {}", jar.owner);
     Ok(())

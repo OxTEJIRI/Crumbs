@@ -2,10 +2,18 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
+  BOOST_COST_CRUMBS,
   getLevelScorePda,
   getSessionPda,
 } from "@/lib/solana/cookieCrush";
+import {
+  CRUMB_JAR_PROGRAM_ID,
+  CRUMB_MINT,
+  getJarCrumbsAta,
+  getJarPda,
+} from "@/lib/solana/program";
 import { useCookieCrushProgram } from "@/lib/solana/useCookieCrushProgram";
 import { describeError, useTransactionStatus } from "./useTransactionStatus";
 
@@ -72,22 +80,47 @@ export function useCookieCrushSession(levelId: number) {
     };
   }, [fetchState]);
 
-  const startLevel = useCallback(async () => {
-    if (!publicKey) return false;
+  const startLevel = useCallback(
+    async (boost = false) => {
+      if (!publicKey) return false;
 
-    return run(
-      "Starting Cookie Crush",
-      () =>
-        program.methods
-          .startLevel(levelId)
-          .accountsPartial({
-            player: publicKey,
-            session: getSessionPda(publicKey, levelId),
-          })
-          .transaction(),
-      refresh
-    );
-  }, [program, publicKey, levelId, run, refresh]);
+      const jar = getJarPda(publicKey);
+      // Anchor rejects a mix of set and unset optional accounts, so a free
+      // round passes null for every one of them.
+      const boostAccounts = boost
+        ? {
+            jar,
+            crumbMint: CRUMB_MINT,
+            jarCrumbs: getJarCrumbsAta(jar),
+            crumbJarProgram: CRUMB_JAR_PROGRAM_ID,
+            tokenProgram: TOKEN_PROGRAM_ID,
+          }
+        : {
+            jar: null,
+            crumbMint: null,
+            jarCrumbs: null,
+            crumbJarProgram: null,
+            tokenProgram: null,
+          };
+
+      return run(
+        boost
+          ? `Paying ${BOOST_COST_CRUMBS} crumbs for a longer round`
+          : "Starting Cookie Crush",
+        () =>
+          program.methods
+            .startLevel(levelId, boost)
+            .accountsPartial({
+              player: publicKey,
+              session: getSessionPda(publicKey, levelId),
+              ...boostAccounts,
+            })
+            .transaction(),
+        refresh
+      );
+    },
+    [program, publicKey, levelId, run, refresh]
+  );
 
   const submitScore = useCallback(
     async (score: number) => {

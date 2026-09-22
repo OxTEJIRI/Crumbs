@@ -15,8 +15,10 @@ declare_id!("A666hnXcDdB9y8Vz2anJTLQg8R7tivBLEXTC4PBQaFoV");
 pub mod lucky_slice_program {
     use super::*;
 
-    pub fn start_round(ctx: Context<StartRound>) -> Result<()> {
-        crate::instructions::start_round::handle_start_round(ctx)
+    /// `wager` escrows $CRUMB against the round; see WAGER_ACCURACY_BPS for
+    /// the bar the cut has to clear to get it back.
+    pub fn start_round(ctx: Context<StartRound>, wager: bool) -> Result<()> {
+        crate::instructions::start_round::handle_start_round(ctx, wager)
     }
 
     pub fn submit_cut(ctx: Context<SubmitCut>, actual_bps: u32) -> Result<()> {

@@ -20,3 +20,14 @@ pub const BPS_DENOMINATOR: u32 = 10_000;
 pub const MIN_ROUND_SLOTS: u64 = 1;
 
 pub const SLOT_HASHES_ID: Pubkey = pubkey!("SysvarS1otHashes111111111111111111111111111");
+
+/// What a staked round puts at risk. Smaller than Cookie Crush's boost,
+/// because a round is over in seconds and a player will take many of them.
+#[constant]
+pub const WAGER_STAKE_CRUMBS: u64 = 150;
+
+/// The accuracy a staked round has to reach to get the stake back. Well
+/// above what a careless tap lands, but comfortably reachable with a
+/// deliberate one, so the stake rewards precision rather than luck.
+#[constant]
+pub const WAGER_ACCURACY_BPS: u32 = 8_500;

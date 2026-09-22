@@ -12,8 +12,8 @@ import { useCookieJar, useLiveCrumbs } from "@/hooks/useCookieJar";
 
 function GameSubHeader() {
   const { publicKey } = useWallet();
-  const { jar } = useCookieJar();
-  const { total } = useLiveCrumbs(jar);
+  const { jar, balance } = useCookieJar();
+  const { total } = useLiveCrumbs(jar, balance);
 
   return (
     <div className="border-b border-border/60 bg-surface/60">

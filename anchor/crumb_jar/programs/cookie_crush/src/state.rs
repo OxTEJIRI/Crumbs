@@ -9,6 +9,9 @@ pub struct Session {
     pub level_id: u8,
     pub started_at: i64,
     pub bump: u8,
+    /// Whether the player paid $CRUMB for a longer round. Recorded so the
+    /// purchase is visible on chain, not because the clock is enforced here.
+    pub boosted: bool,
 }
 
 /// A player's running record for one level. Persists across attempts.

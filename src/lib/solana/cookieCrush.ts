@@ -29,5 +29,15 @@ export function getLevelScorePda(
   return pda;
 }
 
+/** Read from the program's own IDL, so the UI can't drift from what the chain charges. */
+function constant(name: string): number {
+  const entry = idl.constants.find((c) => c.name === name);
+  if (!entry) throw new Error(`Cookie Crush IDL has no constant named ${name}`);
+  return Number(entry.value);
+}
+
+export const BOOST_COST_CRUMBS = constant("BOOST_COST_CRUMBS");
+export const BOOST_EXTRA_SECONDS = constant("BOOST_EXTRA_SECONDS");
+
 export { idl as cookieCrushIdl };
 export type { CookieCrush };

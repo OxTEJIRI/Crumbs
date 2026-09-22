@@ -15,9 +15,7 @@ separate `anchor/<slug>/` workspace if there's a reason to isolate it.
 See GAME_DESIGN.md for the full game design.
 
 Stack: @solana/web3.js, @solana/wallet-adapter-react (Nightly required),
-Anchor. $CRUMB token is currently a plain u64 on the jar account, not yet
-minted as SPL Token-2022 — see GAME_DESIGN.md's stack section for the
-originally-planned token/NFT layer, which remains a stretch goal.
+Anchor, anchor-spl.
 
 Build order (complete):
 1. Wallet connect + jar minting
@@ -25,6 +23,59 @@ Build order (complete):
 3. Raid mechanic (commit-reveal)
 4. Leaderboard
 5. Transaction status UI + error handling
+
+#### $CRUMB as a real SPL token
+$CRUMB was a plain `u64` on the jar account. It is now a real classic SPL
+Token (not Token-2022 — no extension was needed, and classic has wider
+wallet and explorer support), 0 decimals since crumbs were always whole
+numbers. `CRUMB_MINT` is a constant in `constants.rs` and the frontend
+reads it from the IDL rather than hardcoding.
+
+A jar's crumbs live in an associated token account whose authority is the
+**jar's own PDA**, not the player's wallet. That is what lets a raid move
+crumbs out without the victim signing, exactly as the old `u64` balance
+did. Minting is separate: an SPL mint has only one authority pubkey, so a
+single global `[b"crumb_mint_authority"]` PDA signs every `mint_to`, while
+each jar's PDA only ever signs for its own token account.
+
+`CookieJar` is a live account type, so the struct could not be reordered:
+`crumb_balance` stays in place (frozen, only meaningful pre-migration) and
+`migrated: bool` is **appended** at the end. Borsh deserializes
+positionally, so moving or removing either field would corrupt every jar
+already on chain.
+
+Migration is one-time and per-player: each existing player signs
+`migrate_to_token` themselves, which settles pending accrual, mints the
+total as real tokens, and zeroes the legacy field. There is no way to do
+this on players' behalf, so a player who never returns keeps an
+unconverted balance indefinitely. Jars minted after this ship start with
+`migrated = true`, since they have nothing to convert.
+
+A raid's stake can no longer be an abstract subtraction, so `commit_raid`
+escrows it in a token account owned by the raid PDA. On a win the escrow
+returns to the attacker alongside the loot; on a loss it is **burned**,
+matching the old behaviour where a lost stake evaporated and credited
+nobody. The integration test asserts against total mint supply, since a
+burn is the only case that supply, rather than any balance, can prove.
+
+Bugs found and fixed while building this, all before deploy:
+- `claim_crumbs`, `migrate_to_token` and `reveal_raid` declared the mint
+  read-only while calling `mint_to`/`burn`, which write supply.
+- `reveal_raid` still called `settle()`, which post-migration would have
+  written phantom crumbs into the dead legacy field *and* reset
+  `last_claimed_ts`, silently destroying the victim's unclaimed accrual on
+  every raid. It now mints the target's pending accrual for real before
+  taking its cut, so never claiming can't make a jar raid-proof.
+- `target_crumbs` lacked `init_if_needed`, so raiding anyone who had never
+  claimed failed forever. Since the stake was already escrowed and the raid
+  PDA is seeded per-attacker, that stranded the stake and locked the
+  attacker out of raiding permanently.
+- `raid_escrow` had no constraint tying it to the raid PDA, letting a
+  substituted empty account orphan the real stake once the raid closed.
+
+Status: 8 integration tests passing against a local validator. **The mint
+does not exist on Cookie Chain yet and the live program has not been
+upgraded** — both are deliberate, separate real-money steps.
 
 ### Cookie Crush (`/games/cookie-crush`, `anchor/crumb_jar/programs/cookie_crush/`)
 Match-3 puzzle game. The board itself (`src/lib/cookieCrush/board.ts`) is
@@ -36,8 +87,21 @@ anti-cheat, since nothing on-chain can verify a score came from actual play
 when gameplay state never leaves the browser. A real fix (committing to and
 verifying the move sequence) is out of scope for now.
 
-Status: on-chain program complete and tested against a local validator.
-Not yet deployed to Cookie Chain or played through a real wallet.
+**Spending $CRUMB:** `start_level(level_id, boost)`. A boosted round costs
+`BOOST_COST_CRUMBS` and runs `BOOST_EXTRA_SECONDS` longer. Payment is a CPI
+into `crumb_jar::spend_crumbs`, inside the same instruction that opens the
+session, so it can't be skipped — a rejected payment rolls the session back
+with it. The $CRUMB accounts are **optional**, so playing free never
+requires owning a Cookie Jar.
+
+The extra time itself is client-side, like the board and the score. Only
+the payment is enforced. That's consistent with the trust model already
+documented above, but worth being explicit about: buying the boost is real,
+receiving it is trusted.
+
+Status: on-chain program complete, 8 integration tests passing against a
+local validator. Not yet deployed to Cookie Chain or played through a real
+wallet.
 
 ### Nibble (`/games/nibble`, `anchor/crumb_jar/programs/nibble/`)
 Single shared cookie, PvP, played with real COOK rather than an in-game
@@ -116,15 +180,48 @@ only rejects a submit landing in the same slot the round started.
 Leaderboard ranks by best accuracy, read via `getProgramAccounts` like the
 other leaderboards.
 
+**Staking $CRUMB:** `start_round(wager)`. A staked round escrows
+`WAGER_STAKE_CRUMBS` via a CPI into `crumb_jar::escrow_crumbs`; `submit_cut`
+returns it if accuracy reaches `WAGER_ACCURACY_BPS` and **burns** it
+otherwise. Nothing is ever minted, so a staked round can only hold supply
+flat or shrink it — Jar Wars accrual stays the single source of $CRUMB.
+The escrow's authority is the round PDA, so only this program can settle
+it, and only once the cut is in. As with Cookie Crush, the $CRUMB accounts
+are optional so free play needs no Cookie Jar.
+
+`escrow_crumbs` is deliberately narrower than a general transfer: it
+requires the destination's authority to **sign**, so crumbs can only move
+into an account a program holds, never one the player controls outright.
+The residual risk is that a player could deploy their own program and park
+crumbs there to dodge raids — but parked crumbs are unspendable and
+invisible to the leaderboard, so the dodge costs more than it saves.
+
 Deployed to Cookie Chain at
 `A666hnXcDdB9y8Vz2anJTLQg8R7tivBLEXTC4PBQaFoV` (upgraded in place from an
-earlier single-instruction chance-based version). 5 integration tests
-passing against a local validator. **Not yet played through a real
+earlier single-instruction chance-based version). 8 integration tests
+passing against a local validator. **The deployed version predates the
+wager mode** and needs re-upgrading. **Not yet played through a real
 wallet** — the frontend is unverified in a browser.
 
 ### Future games
 None yet beyond these four. Add a game by suggesting it; each new game
 follows the same shared-infra, own-program pattern.
+
+## Running the tests
+`anchor test` is broken in this environment: it builds, runs the Rust unit
+tests, starts its validator, and then never launches the test script. Start
+`solana-test-validator` yourself with a `--bpf-program <id> <path>.so` pair
+for each program in `target/deploy/`, wait for `getHealth` to return `ok`,
+then run `npx ts-mocha -p ./tsconfig.json -t 1000000 "tests/**/*.ts"` with
+`ANCHOR_PROVIDER_URL` and `ANCHOR_WALLET` set. All four suites take about
+four minutes.
+
+The suites share one validator and any of them may be the first to run, so
+each one that needs the $CRUMB mint creates it only if it isn't there yet.
+
+Install npm dependencies from **Windows**, never from WSL — installing
+across the `/mnt/c` boundary silently writes truncated files, which surface
+much later as syntax errors from inside `node_modules`.
 
 ## Platform-wide rules
 - Cookie Chain RPC: https://rpc.cookiescan.io — **mainnet only, no faucet/testnet/devnet.** Every transaction costs real $COOK.

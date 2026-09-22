@@ -15,8 +15,9 @@ declare_id!("2jT3Tqpz2bavkJeDQiQTG8S6i3X1DMLUU6Gazeb9LvLM");
 pub mod cookie_crush {
     use super::*;
 
-    pub fn start_level(ctx: Context<StartLevel>, level_id: u8) -> Result<()> {
-        crate::instructions::start_level::handle_start_level(ctx, level_id)
+    /// `boost` pays $CRUMB for a longer round; see BOOST_EXTRA_SECONDS.
+    pub fn start_level(ctx: Context<StartLevel>, level_id: u8, boost: bool) -> Result<()> {
+        crate::instructions::start_level::handle_start_level(ctx, level_id, boost)
     }
 
     pub fn submit_score(ctx: Context<SubmitScore>, level_id: u8, score: u32) -> Result<()> {

@@ -11,9 +11,18 @@ export default function JarPanel({
   raidTarget: string;
   onRaidTargetChange: (value: string) => void;
 }) {
-  const { jar, loading, status, error, mintJar, claimCrumbs, refresh } =
-    useCookieJar();
-  const { banked, pending, total } = useLiveCrumbs(jar);
+  const {
+    jar,
+    balance,
+    loading,
+    status,
+    error,
+    mintJar,
+    claimCrumbs,
+    migrateJar,
+    refresh,
+  } = useCookieJar();
+  const { banked, pending, total } = useLiveCrumbs(jar, balance);
 
   const busy = status === "pending" || status === "confirming";
 
@@ -58,17 +67,41 @@ export default function JarPanel({
               </dd>
             </dl>
 
-            <button
-              onClick={claimCrumbs}
-              disabled={busy || pending === 0}
-              className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
-            >
-              {busy
-                ? "Claiming…"
-                : pending === 0
-                  ? "Nothing to claim yet"
-                  : `Claim ${pending.toLocaleString()} crumbs`}
-            </button>
+            {jar.migrated ? (
+              <button
+                onClick={claimCrumbs}
+                disabled={busy || pending === 0}
+                className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+              >
+                {busy
+                  ? "Claiming…"
+                  : pending === 0
+                    ? "Nothing to claim yet"
+                    : `Claim ${pending.toLocaleString()} crumbs`}
+              </button>
+            ) : (
+              <div className="flex w-full flex-col gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+                <p className="text-sm">
+                  <span className="font-medium">$CRUMB is a real token now.</span>{" "}
+                  Your crumbs were a score kept inside this game. Convert them
+                  once and they become an actual token in your jar, spendable
+                  across every Crumbs game.
+                </p>
+                <p className="text-sm text-muted">
+                  Nothing is lost in the swap. Everything you&apos;ve earned,
+                  including what&apos;s unclaimed right now, comes across.
+                </p>
+                <button
+                  onClick={migrateJar}
+                  disabled={busy}
+                  className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                >
+                  {busy
+                    ? "Converting…"
+                    : `Convert ${total.toLocaleString()} crumbs to $CRUMB`}
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -91,7 +124,7 @@ export default function JarPanel({
         )}
       </div>
 
-      {jar && (
+      {jar?.migrated && (
         <RaidPanel
           onJarChanged={refresh}
           target={raidTarget}

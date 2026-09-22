@@ -6,4 +6,6 @@ pub enum CookieCrushError {
     SubmittedTooSoon,
     #[msg("That score isn't plausible for how long the session ran")]
     ScoreImplausible,
+    #[msg("Paying for a longer round needs your Cookie Jar and its $CRUMB accounts")]
+    BoostAccountsMissing,
 }

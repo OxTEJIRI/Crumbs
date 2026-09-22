@@ -15,6 +15,9 @@ export type CookieCrush = {
   "instructions": [
     {
       "name": "startLevel",
+      "docs": [
+        "`boost` pays $CRUMB for a longer round; see BOOST_EXTRA_SECONDS."
+      ],
       "discriminator": [
         225,
         44,
@@ -38,12 +41,40 @@ export type CookieCrush = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "jar",
+          "optional": true
+        },
+        {
+          "name": "crumbMint",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "jarCrumbs",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "crumbJarProgram",
+          "optional": true,
+          "address": "85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr"
+        },
+        {
+          "name": "tokenProgram",
+          "optional": true,
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": [
         {
           "name": "levelId",
           "type": "u8"
+        },
+        {
+          "name": "boost",
+          "type": "bool"
         }
       ]
     },
@@ -128,9 +159,68 @@ export type CookieCrush = {
       "code": 6001,
       "name": "scoreImplausible",
       "msg": "That score isn't plausible for how long the session ran"
+    },
+    {
+      "code": 6002,
+      "name": "boostAccountsMissing",
+      "msg": "Paying for a longer round needs your Cookie Jar and its $CRUMB accounts"
     }
   ],
   "types": [
+    {
+      "name": "cookieJar",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "crumbBalance",
+            "docs": [
+              "Legacy balance from before $CRUMB became a real SPL token. Only ever",
+              "written to pre-migration; frozen (and zeroed once spent) afterward.",
+              "Cannot be removed or reordered -- every already-minted jar on-chain",
+              "has this exact byte layout baked in, and Borsh deserializes",
+              "positionally, so doing either would corrupt every existing account."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "productionRate",
+            "type": "u64"
+          },
+          {
+            "name": "lastClaimedTs",
+            "type": "i64"
+          },
+          {
+            "name": "lastRaidTs",
+            "type": "i64"
+          },
+          {
+            "name": "defenseLevel",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "migrated",
+            "docs": [
+              "Appended field, not inserted -- new fields must only ever go at the",
+              "end for the same reason `crumb_balance` can't move. False on every",
+              "jar that existed before this field did (realloc zero-initializes new",
+              "space), true immediately for jars minted after, since they start",
+              "with nothing to migrate."
+            ],
+            "type": "bool"
+          }
+        ]
+      }
+    },
     {
       "name": "levelScore",
       "docs": [
@@ -186,12 +276,40 @@ export type CookieCrush = {
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "boosted",
+            "docs": [
+              "Whether the player paid $CRUMB for a longer round. Recorded so the",
+              "purchase is visible on chain, not because the clock is enforced here."
+            ],
+            "type": "bool"
           }
         ]
       }
     }
   ],
   "constants": [
+    {
+      "name": "boostCostCrumbs",
+      "docs": [
+        "What a longer round costs in $CRUMB. Roughly twelve seconds of a jar's",
+        "accrual, so it's a real decision without being out of reach."
+      ],
+      "type": "u64",
+      "value": "250"
+    },
+    {
+      "name": "boostExtraSeconds",
+      "docs": [
+        "How much longer a boosted round runs, on top of the base 60. The clock",
+        "itself is client-side like the rest of the board, so this is the agreed",
+        "number both sides work from, not something the chain enforces. The",
+        "*payment* is enforced; the extra time is as trusted as the score is."
+      ],
+      "type": "i64",
+      "value": "30"
+    },
     {
       "name": "maxScorePerSecond",
       "docs": [

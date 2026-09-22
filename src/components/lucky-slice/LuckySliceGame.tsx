@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useLuckySlice } from "@/hooks/useLuckySlice";
-import { BPS_DENOMINATOR } from "@/lib/solana/luckySlice";
+import { useCookieJar, useLiveCrumbs } from "@/hooks/useCookieJar";
+import {
+  BPS_DENOMINATOR,
+  WAGER_ACCURACY_BPS,
+  WAGER_STAKE_CRUMBS,
+} from "@/lib/solana/luckySlice";
 import CrumbMascot, { type MascotMood } from "./CrumbMascot";
 import KnifeCookieScene from "./KnifeCookieScene";
 import Scale from "./Scale";
@@ -31,10 +36,17 @@ export default function LuckySliceGame() {
   // inside it to reset on `swinging` — a synchronous setState in an effect
   // body is exactly the pattern that caused Cookie Crush's timer bug.
   const [roundToken, setRoundToken] = useState(0);
+  const [wager, setWager] = useState(false);
+
+  const { jar, balance } = useCookieJar();
+  const { banked } = useLiveCrumbs(jar, balance);
+  // Only claimed crumbs can be staked -- what's still accruing hasn't been
+  // minted yet, so the chain would reject it.
+  const canStake = Boolean(jar?.migrated) && banked >= WAGER_STAKE_CRUMBS;
 
   const handleStart = () => {
     setRoundToken((t) => t + 1);
-    startRound();
+    startRound(wager && canStake);
   };
 
   const handleCut = (actualBps: number) => {
@@ -85,6 +97,33 @@ export default function LuckySliceGame() {
             </p>
           )}
 
+          {canStake && !round && (
+            <label className="flex w-full max-w-xs cursor-pointer items-center gap-3 rounded-2xl border border-border bg-background/60 p-4 text-sm transition-colors hover:border-primary/40">
+              <input
+                type="checkbox"
+                checked={wager}
+                onChange={(e) => setWager(e.target.checked)}
+                disabled={busy}
+                className="h-4 w-4 shrink-0 accent-primary"
+              />
+              <span className="flex-1">
+                Stake <span className="font-mono">{WAGER_STAKE_CRUMBS}</span>{" "}
+                crumbs on this cut
+                <span className="block text-xs text-muted">
+                  Land within {((BPS_DENOMINATOR - WAGER_ACCURACY_BPS) / 100).toFixed(0)}%
+                  of the target and you get them back. Miss and they burn.
+                </span>
+              </span>
+            </label>
+          )}
+
+          {round?.wagered && (
+            <p className="text-center text-sm text-primary">
+              {WAGER_STAKE_CRUMBS} crumbs staked. You need{" "}
+              {(WAGER_ACCURACY_BPS / 100).toFixed(0)}% accuracy to keep them.
+            </p>
+          )}
+
           <button
             onClick={round ? undefined : handleStart}
             disabled={busy || !!round}
@@ -94,9 +133,11 @@ export default function LuckySliceGame() {
               ? "Working…"
               : round
                 ? "Tap the cookie to cut"
-                : lastResult
-                  ? "Play again"
-                  : "Start round"}
+                : wager && canStake
+                  ? `Start round, staking ${WAGER_STAKE_CRUMBS} crumbs`
+                  : lastResult
+                    ? "Play again"
+                    : "Start round"}
           </button>
 
           {stats && (

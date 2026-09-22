@@ -10,6 +10,10 @@ pub struct Round {
     pub target_bps: u32,
     pub start_slot: u64,
     pub bump: u8,
+    /// Whether crumbs are escrowed against this round. submit_cut has to know
+    /// without being told, so a player can't quietly settle a staked round as
+    /// if it were a free one.
+    pub wagered: bool,
 }
 
 /// One per player, created on their first round and reused for every one

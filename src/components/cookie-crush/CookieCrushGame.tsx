@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useCookieCrushSession } from "@/hooks/useCookieCrushSession";
+import { useCookieJar, useLiveCrumbs } from "@/hooks/useCookieJar";
+import {
+  BOOST_COST_CRUMBS,
+  BOOST_EXTRA_SECONDS,
+} from "@/lib/solana/cookieCrush";
 import Board from "./Board";
 import CookieCrushLeaderboard from "./CookieCrushLeaderboard";
 
@@ -21,10 +26,18 @@ export default function CookieCrushGame() {
   const { inSession, bestScore, status, error, startLevel, submitScore } =
     useCookieCrushSession(LEVEL_ID);
 
+  const { jar, balance } = useCookieJar();
+  const { banked } = useLiveCrumbs(jar, balance);
+
   const [phase, setPhase] = useState<Phase>("idle");
   const [score, setScore] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(ROUND_SECONDS);
   const [boardKey, setBoardKey] = useState(0);
+  const [boost, setBoost] = useState(false);
+
+  // Only claimed crumbs can be spent -- what's still accruing hasn't been
+  // minted yet, so the chain would reject it.
+  const canAffordBoost = Boolean(jar?.migrated) && banked >= BOOST_COST_CRUMBS;
 
   const busy = status === "pending" || status === "confirming";
   const hasStaleSession = inSession && phase === "idle";
@@ -40,14 +53,15 @@ export default function CookieCrushGame() {
   }, [roundActive, secondsLeft]);
 
   const handleStart = useCallback(async () => {
-    const ok = await startLevel();
+    const paying = boost && canAffordBoost;
+    const ok = await startLevel(paying);
     if (!ok) return;
 
     setScore(0);
-    setSecondsLeft(ROUND_SECONDS);
+    setSecondsLeft(ROUND_SECONDS + (paying ? BOOST_EXTRA_SECONDS : 0));
     setBoardKey((k) => k + 1);
     setPhase("playing");
-  }, [startLevel]);
+  }, [startLevel, boost, canAffordBoost]);
 
   const handleScore = useCallback((points: number) => {
     setScore((s) => s + points);
@@ -118,13 +132,40 @@ export default function CookieCrushGame() {
               </button>
             </div>
           ) : phase === "idle" ? (
-            <button
-              onClick={handleStart}
-              disabled={busy}
-              className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
-            >
-              {busy ? "Starting…" : "Start level"}
-            </button>
+            <div className="flex flex-col gap-3">
+              {canAffordBoost && (
+                <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-background/60 p-4 text-sm transition-colors hover:border-primary/40">
+                  <input
+                    type="checkbox"
+                    checked={boost}
+                    onChange={(e) => setBoost(e.target.checked)}
+                    disabled={busy}
+                    className="h-4 w-4 shrink-0 accent-primary"
+                  />
+                  <span className="flex-1">
+                    Play {ROUND_SECONDS + BOOST_EXTRA_SECONDS}s instead of{" "}
+                    {ROUND_SECONDS}s for{" "}
+                    <span className="font-mono">{BOOST_COST_CRUMBS}</span>{" "}
+                    crumbs
+                    <span className="block text-xs text-muted">
+                      You have {banked.toLocaleString()} claimed. They&apos;re
+                      burned, not paid to anyone.
+                    </span>
+                  </span>
+                </label>
+              )}
+              <button
+                onClick={handleStart}
+                disabled={busy}
+                className="h-12 w-full rounded-full bg-primary px-5 font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary-hover hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+              >
+                {busy
+                  ? "Starting…"
+                  : boost && canAffordBoost
+                    ? `Start ${ROUND_SECONDS + BOOST_EXTRA_SECONDS}s level for ${BOOST_COST_CRUMBS} crumbs`
+                    : "Start level"}
+              </button>
+            </div>
           ) : roundOver ? (
             <button
               onClick={handleSubmit}

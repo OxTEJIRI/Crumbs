@@ -2,7 +2,22 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { getRoundPda, getStatsPda } from "@/lib/solana/luckySlice";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
+import {
+  getRoundPda,
+  getStatsPda,
+  getWagerEscrowAta,
+  WAGER_STAKE_CRUMBS,
+} from "@/lib/solana/luckySlice";
+import {
+  CRUMB_JAR_PROGRAM_ID,
+  CRUMB_MINT,
+  getJarCrumbsAta,
+  getJarPda,
+} from "@/lib/solana/program";
 import { useLuckySliceProgram } from "@/lib/solana/useLuckySliceProgram";
 import { describeError, useTransactionStatus } from "./useTransactionStatus";
 
@@ -13,6 +28,7 @@ export interface SliceStatsState {
 
 export interface RoundState {
   targetBps: number;
+  wagered: boolean;
 }
 
 export interface CutResult {
@@ -74,7 +90,7 @@ export function useLuckySlice() {
     if (!roundPda) return null;
     const account = await program.account.round.fetchNullable(roundPda);
     if (!account) return null;
-    return { targetBps: account.targetBps };
+    return { targetBps: account.targetBps, wagered: account.wagered };
   }, [program, roundPda]);
 
   const refresh = useCallback(async () => {
@@ -108,40 +124,87 @@ export function useLuckySlice() {
     };
   }, [fetchStats, fetchRound]);
 
-  const startRound = useCallback(async () => {
-    if (!publicKey) return false;
+  const startRound = useCallback(
+    async (wager = false) => {
+      if (!publicKey) return false;
 
-    setLastResult(null);
-    return run(
-      "Starting a round",
-      () =>
-        program.methods.startRound().accountsPartial({ player: publicKey }).transaction(),
-      async (signature) => {
-        const targetBps = await readFromLogs(
-          connection,
-          signature,
-          /target (\d+)bps/
-        );
-        if (targetBps !== null) {
-          setRound({ targetBps });
-        } else {
+      setLastResult(null);
+      const jar = getJarPda(publicKey);
+      const roundAccount = getRoundPda(publicKey);
+      // Anchor rejects a mix of set and unset optional accounts, so a free
+      // round passes null for every one of them.
+      const wagerAccounts = wager
+        ? {
+            jar,
+            crumbMint: CRUMB_MINT,
+            jarCrumbs: getJarCrumbsAta(jar),
+            wagerEscrow: getWagerEscrowAta(roundAccount),
+            crumbJarProgram: CRUMB_JAR_PROGRAM_ID,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          }
+        : {
+            jar: null,
+            crumbMint: null,
+            jarCrumbs: null,
+            wagerEscrow: null,
+            crumbJarProgram: null,
+            tokenProgram: null,
+            associatedTokenProgram: null,
+          };
+
+      return run(
+        wager
+          ? `Staking ${WAGER_STAKE_CRUMBS} crumbs on this cut`
+          : "Starting a round",
+        () =>
+          program.methods
+            .startRound(wager)
+            .accountsPartial({ player: publicKey, ...wagerAccounts })
+            .transaction(),
+        async (signature) => {
+          const targetBps = await readFromLogs(
+            connection,
+            signature,
+            /target (\d+)bps/
+          );
+          if (targetBps !== null) {
+            setRound({ targetBps, wagered: wager });
+          }
           await refresh();
         }
-        await refresh();
-      }
-    );
-  }, [program, publicKey, run, refresh, connection]);
+      );
+    },
+    [program, publicKey, run, refresh, connection]
+  );
 
   const submitCut = useCallback(
     async (actualBps: number) => {
       if (!publicKey) return false;
+
+      // Settling a staked round needs the escrow accounts; the program reads
+      // `wagered` off the round itself, so these have to match what it finds.
+      const jar = getJarPda(publicKey);
+      const settleAccounts = round?.wagered
+        ? {
+            crumbMint: CRUMB_MINT,
+            jarCrumbs: getJarCrumbsAta(jar),
+            wagerEscrow: getWagerEscrowAta(getRoundPda(publicKey)),
+            tokenProgram: TOKEN_PROGRAM_ID,
+          }
+        : {
+            crumbMint: null,
+            jarCrumbs: null,
+            wagerEscrow: null,
+            tokenProgram: null,
+          };
 
       return run(
         "Submitting your cut",
         () =>
           program.methods
             .submitCut(actualBps)
-            .accountsPartial({ player: publicKey })
+            .accountsPartial({ player: publicKey, ...settleAccounts })
             .transaction(),
         async (signature) => {
           const accuracyBps = await readFromLogs(
@@ -158,7 +221,7 @@ export function useLuckySlice() {
         }
       );
     },
-    [program, publicKey, run, refresh, connection]
+    [program, publicKey, run, refresh, connection, round]
   );
 
   return {

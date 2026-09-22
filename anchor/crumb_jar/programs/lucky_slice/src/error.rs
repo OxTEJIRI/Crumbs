@@ -8,4 +8,6 @@ pub enum LuckySliceError {
     CutOutOfRange,
     #[msg("Submitted too soon after starting the round.")]
     SubmittedTooSoon,
+    #[msg("Staking a round needs your Cookie Jar and its $CRUMB accounts.")]
+    WagerAccountsMissing,
 }

@@ -14,7 +14,7 @@ default = []
 cpi = ["no-entrypoint"]
 no-entrypoint = []
 no-log-ix-name = []
-idl-build = ["anchor-lang/idl-build"]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "crumb_jar/idl-build"]
 anchor-debug = []
 custom-heap = []
 custom-panic = []
@@ -22,6 +22,11 @@ custom-panic = []
 
 [dependencies]
 anchor-lang = { version = "1.2.0", features = ["init-if-needed"] }
+anchor-spl = "1.2.0"
+# Paying for a bonus has to be part of the same transaction as the bonus, so
+# this calls crumb_jar's spend instruction over CPI rather than trusting a
+# separate payment to have happened.
+crumb_jar = { path = "../crumb_jar", features = ["cpi"] }
 
 
 [lints.rust]

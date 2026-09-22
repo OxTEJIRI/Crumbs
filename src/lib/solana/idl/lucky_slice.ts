@@ -15,6 +15,10 @@ export type LuckySliceProgram = {
   "instructions": [
     {
       "name": "startRound",
+      "docs": [
+        "`wager` escrows $CRUMB against the round; see WAGER_ACCURACY_BPS for",
+        "the bar the cut has to clear to get it back."
+      ],
       "discriminator": [
         144,
         144,
@@ -85,9 +89,137 @@ export type LuckySliceProgram = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "jar",
+          "optional": true
+        },
+        {
+          "name": "crumbMint",
+          "optional": true
+        },
+        {
+          "name": "jarCrumbs",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "wagerEscrow",
+          "docs": [
+            "Held by the round itself, so only this program can settle it, and only",
+            "once the cut is in."
+          ],
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "round"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "crumbMint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "crumbJarProgram",
+          "optional": true,
+          "address": "85eL8gcexHuQmX8BvpMYxVPobmrcFRW62XBGGVuhKaLr"
+        },
+        {
+          "name": "tokenProgram",
+          "optional": true,
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associatedTokenProgram",
+          "optional": true,
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "wager",
+          "type": "bool"
+        }
+      ]
     },
     {
       "name": "submitCut",
@@ -150,6 +282,29 @@ export type LuckySliceProgram = {
               }
             ]
           }
+        },
+        {
+          "name": "crumbMint",
+          "docs": [
+            "Mutable because losing the stake burns it, which lowers supply."
+          ],
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "jarCrumbs",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "wagerEscrow",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "tokenProgram",
+          "optional": true,
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": [
@@ -203,9 +358,68 @@ export type LuckySliceProgram = {
       "code": 6002,
       "name": "submittedTooSoon",
       "msg": "Submitted too soon after starting the round."
+    },
+    {
+      "code": 6003,
+      "name": "wagerAccountsMissing",
+      "msg": "Staking a round needs your Cookie Jar and its $CRUMB accounts."
     }
   ],
   "types": [
+    {
+      "name": "cookieJar",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "crumbBalance",
+            "docs": [
+              "Legacy balance from before $CRUMB became a real SPL token. Only ever",
+              "written to pre-migration; frozen (and zeroed once spent) afterward.",
+              "Cannot be removed or reordered -- every already-minted jar on-chain",
+              "has this exact byte layout baked in, and Borsh deserializes",
+              "positionally, so doing either would corrupt every existing account."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "productionRate",
+            "type": "u64"
+          },
+          {
+            "name": "lastClaimedTs",
+            "type": "i64"
+          },
+          {
+            "name": "lastRaidTs",
+            "type": "i64"
+          },
+          {
+            "name": "defenseLevel",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "migrated",
+            "docs": [
+              "Appended field, not inserted -- new fields must only ever go at the",
+              "end for the same reason `crumb_balance` can't move. False on every",
+              "jar that existed before this field did (realloc zero-initializes new",
+              "space), true immediately for jars minted after, since they start",
+              "with nothing to migrate."
+            ],
+            "type": "bool"
+          }
+        ]
+      }
+    },
     {
       "name": "round",
       "docs": [
@@ -231,6 +445,15 @@ export type LuckySliceProgram = {
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "wagered",
+            "docs": [
+              "Whether crumbs are escrowed against this round. submit_cut has to know",
+              "without being told, so a player can't quietly settle a staked round as",
+              "if it were a free one."
+            ],
+            "type": "bool"
           }
         ]
       }
@@ -301,6 +524,25 @@ export type LuckySliceProgram = {
       "name": "statsSeed",
       "type": "bytes",
       "value": "[115, 108, 105, 99, 101]"
+    },
+    {
+      "name": "wagerAccuracyBps",
+      "docs": [
+        "The accuracy a staked round has to reach to get the stake back. Well",
+        "above what a careless tap lands, but comfortably reachable with a",
+        "deliberate one, so the stake rewards precision rather than luck."
+      ],
+      "type": "u32",
+      "value": "8500"
+    },
+    {
+      "name": "wagerStakeCrumbs",
+      "docs": [
+        "What a staked round puts at risk. Smaller than Cookie Crush's boost,",
+        "because a round is over in seconds and a player will take many of them."
+      ],
+      "type": "u64",
+      "value": "150"
     }
   ]
 };

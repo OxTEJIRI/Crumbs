@@ -21,3 +21,15 @@ pub const MAX_SCORE_PER_SECOND: u64 = 80;
 /// cascade in the first second or two isn't rejected as "too fast."
 #[constant]
 pub const SCORE_BURST_ALLOWANCE: u64 = 200;
+
+/// What a longer round costs in $CRUMB. Roughly twelve seconds of a jar's
+/// accrual, so it's a real decision without being out of reach.
+#[constant]
+pub const BOOST_COST_CRUMBS: u64 = 250;
+
+/// How much longer a boosted round runs, on top of the base 60. The clock
+/// itself is client-side like the rest of the board, so this is the agreed
+/// number both sides work from, not something the chain enforces. The
+/// *payment* is enforced; the extra time is as trusted as the score is.
+#[constant]
+pub const BOOST_EXTRA_SECONDS: i64 = 30;
